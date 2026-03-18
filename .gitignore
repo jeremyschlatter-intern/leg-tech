@@ -1,0 +1,7 @@
+projects/
+*.log
+*.sh
+*.py
+*.swp
+congress-api-key-coordination/
+prompt.txt

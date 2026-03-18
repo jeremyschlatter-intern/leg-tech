@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Leg Tech - AI-Powered Tools for Capitol Hill</title>
+  <style>
+    :root {
+      --navy: #1a2744;
+      --blue: #2c5282;
+      --light-blue: #ebf4ff;
+      --gold: #c6952b;
+      --light-gold: #fdf6e3;
+      --white: #ffffff;
+      --gray-50: #f9fafb;
+      --gray-100: #f3f4f6;
+      --gray-200: #e5e7eb;
+      --gray-400: #9ca3af;
+      --gray-600: #4b5563;
+      --gray-800: #1f2937;
+      --red: #9b2c2c;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Georgia', 'Times New Roman', serif;
+      color: var(--gray-800);
+      background: var(--gray-50);
+      line-height: 1.6;
+    }
+    header {
+      background: linear-gradient(135deg, var(--navy) 0%, var(--blue) 100%);
+      color: var(--white);
+      padding: 3rem 1.5rem 2.5rem;
+      text-align: center;
+      border-bottom: 4px solid var(--gold);
+    }
+    header h1 {
+      font-size: 2.75rem;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      margin-bottom: 0.75rem;
+    }
+    header p {
+      font-size: 1.15rem;
+      max-width: 700px;
+      margin: 0 auto;
+      opacity: 0.9;
+      font-style: italic;
+    }
+    .subtitle {
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      margin-bottom: 0.5rem;
+      opacity: 0.7;
+    }
+    main {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 2rem 1.5rem 4rem;
+    }
+    .intro {
+      text-align: center;
+      margin-bottom: 2.5rem;
+      padding: 1.5rem;
+    }
+    .intro p {
+      font-size: 1.05rem;
+      color: var(--gray-600);
+      max-width: 750px;
+      margin: 0 auto;
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+    }
+    .stats {
+      display: flex;
+      justify-content: center;
+      gap: 2.5rem;
+      margin: 2rem 0;
+      flex-wrap: wrap;
+    }
+    .stat {
+      text-align: center;
+    }
+    .stat-number {
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: var(--blue);
+      display: block;
+    }
+    .stat-label {
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--gray-400);
+    }
+    .section-title {
+      font-size: 1.5rem;
+      color: var(--navy);
+      margin-bottom: 1.5rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 2px solid var(--gold);
+    }
+    .projects {
+      display: grid;
+      gap: 1.5rem;
+    }
+    .project-card {
+      background: var(--white);
+      border: 1px solid var(--gray-200);
+      border-radius: 8px;
+      padding: 1.75rem;
+      transition: box-shadow 0.2s, transform 0.2s;
+    }
+    .project-card:hover {
+      box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+      transform: translateY(-1px);
+    }
+    .project-card h3 {
+      font-size: 1.25rem;
+      color: var(--navy);
+      margin-bottom: 0.75rem;
+    }
+    .project-card .description {
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+      font-size: 0.95rem;
+      color: var(--gray-600);
+      margin-bottom: 1rem;
+      line-height: 1.65;
+    }
+    .project-links {
+      display: flex;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+    .project-links a {
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+      font-size: 0.85rem;
+      padding: 0.4rem 1rem;
+      border-radius: 4px;
+      text-decoration: none;
+      font-weight: 500;
+      transition: background 0.2s;
+    }
+    .btn-primary {
+      background: var(--blue);
+      color: var(--white);
+    }
+    .btn-primary:hover {
+      background: var(--navy);
+    }
+    .btn-secondary {
+      background: var(--light-gold);
+      color: var(--gold);
+      border: 1px solid var(--gold);
+    }
+    .btn-secondary:hover {
+      background: var(--gold);
+      color: var(--white);
+    }
+    .btn-code {
+      background: var(--gray-100);
+      color: var(--gray-600);
+      border: 1px solid var(--gray-200);
+    }
+    .btn-code:hover {
+      background: var(--gray-200);
+    }
+    .badge {
+      display: inline-block;
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      padding: 0.2rem 0.6rem;
+      border-radius: 3px;
+      margin-left: 0.5rem;
+      vertical-align: middle;
+    }
+    .badge-live {
+      background: #c6f6d5;
+      color: #22543d;
+    }
+    .badge-dynamic {
+      background: #fed7d7;
+      color: var(--red);
+    }
+    footer {
+      text-align: center;
+      padding: 2rem;
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+      font-size: 0.85rem;
+      color: var(--gray-400);
+      border-top: 1px solid var(--gray-200);
+    }
+    footer a { color: var(--blue); text-decoration: none; }
+    footer a:hover { text-decoration: underline; }
+
+    @media (max-width: 640px) {
+      header h1 { font-size: 2rem; }
+      header { padding: 2rem 1rem 1.5rem; }
+      .project-card { padding: 1.25rem; }
+      .stats { gap: 1.5rem; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="subtitle">Palisade Research</div>
+    <h1>Leg Tech</h1>
+    <p>23 tools for Congress, built in a day by AI coding agents to demonstrate what's possible right now.</p>
+  </header>
+  <main>
+    <div class="intro">
+      <div class="stats">
+        <div class="stat">
+          <span class="stat-number" id="project-count">0</span>
+          <span class="stat-label">Projects Live</span>
+        </div>
+        <div class="stat">
+          <span class="stat-number">23</span>
+          <span class="stat-label">Total Projects</span>
+        </div>
+        <div class="stat">
+          <span class="stat-number">1</span>
+          <span class="stat-label">Day to Build</span>
+        </div>
+      </div>
+      <p>Each project below was conceived by congressional staff and built autonomously by Claude Code. Click through to explore live demos and read the after-action reports detailing how each tool was built.</p>
+    </div>
+
+    <h2 class="section-title">Live Projects</h2>
+    <div class="projects" id="live-projects">
+    </div>
+
+    <h2 class="section-title" style="margin-top: 3rem;">Coming Soon</h2>
+    <div class="projects" id="coming-soon-projects">
+    </div>
+  </main>
+  <footer>
+    <p>Built by <a href="https://palisaderesearch.org">Palisade Research</a> using <a href="https://claude.ai">Claude Code</a></p>
+  </footer>
+
+  <script>
+    const projects = [
+      {
+        title: "Bills to Committee Predictor",
+        slug: "bills-to-committee",
+        description: "Using historical bill referral patterns, predict which committees a bill will be referred to. Enter a bill number or describe proposed legislation and get committee predictions with confidence scores.",
+        siteUrl: "https://jeremyschlatter-intern.github.io/bills-to-committee/",
+        reportUrl: "https://github.com/jeremyschlatter-intern/bills-to-committee/blob/main/AFTER_ACTION_REPORT.md",
+        repoUrl: "https://github.com/jeremyschlatter-intern/bills-to-committee",
+        live: true
+      },
+      {
+        title: "Bill Delay Tracker",
+        slug: "bill-delay-tracker",
+        description: "Dashboard tracking how long Congress.gov takes to publish CRS summaries after bill text is available. Visualizes delays by bill count, page count, and committee-reported bills.",
+        siteUrl: "https://jeremyschlatter-intern.github.io/bill-delay-tracker/",
+        reportUrl: "https://github.com/jeremyschlatter-intern/bill-delay-tracker/blob/main/REPORT.md",
+        repoUrl: "https://github.com/jeremyschlatter-intern/bill-delay-tracker",
+        live: true
+      },
+      {
+        title: "Appropriations Bill Versions Tracker",
+        slug: "appropriations-bill-versions",
+        description: "Track every version of the 12 annual appropriations bills as they move through subcommittee, full committee, floor votes, and conference. Links to bill text, report language, amendments, and press releases.",
+        siteUrl: "https://jeremyschlatter-intern.github.io/appropriations-tracker/",
+        reportUrl: "https://github.com/jeremyschlatter-intern/appropriations-tracker/blob/main/REPORT.md",
+        repoUrl: "https://github.com/jeremyschlatter-intern/appropriations-tracker",
+        live: true
+      },
+      {
+        title: "Committee Proceeding Transcripts",
+        slug: "committee-proceeding-transcripts",
+        description: "Free, immediate transcripts of congressional committee hearings. No more waiting a year or paying for a private service. Includes automatic summaries and EPUB downloads.",
+        siteUrl: "https://jeremyschlatter-intern.github.io/committee-transcripts/",
+        reportUrl: "https://github.com/jeremyschlatter-intern/committee-transcripts/blob/main/AFTER_ACTION_REPORT.md",
+        repoUrl: "https://github.com/jeremyschlatter-intern/committee-transcripts",
+        live: true
+      },
+      {
+        title: "Congressional Job Tracker",
+        slug: "congressional-job-tracker",
+        description: "Aggregating employment opportunities across Congress \u2014 Senate, House, support offices, and legislative branch agencies like GAO, CRS, and the Capitol Police. Updated regularly with RSS feed.",
+        siteUrl: "https://jeremyschlatter-intern.github.io/congressional-job-tracker/",
+        reportUrl: "https://github.com/jeremyschlatter-intern/congressional-job-tracker/blob/main/REPORT.md",
+        repoUrl: "https://github.com/jeremyschlatter-intern/congressional-job-tracker",
+        live: true
+      },
+      {
+        title: "GAO Reports to Committee Hearings",
+        slug: "connect-gao-reports-to-committee-hearings",
+        description: "Connects GAO reports to topically relevant committee hearings. For any upcoming or past hearing, find the most relevant GAO reports with summaries and direct links.",
+        siteUrl: "https://jeremyschlatter-intern.github.io/gao-hearing-connector/",
+        reportUrl: "https://github.com/jeremyschlatter-intern/gao-hearing-connector/blob/main/AFTER_ACTION_REPORT.md",
+        repoUrl: "https://github.com/jeremyschlatter-intern/gao-hearing-connector",
+        live: true
+      },
+      {
+        title: "Congressional RFPs Tracker",
+        slug: "rfps-for-congress",
+        description: "Track new requests for proposals and contracts from the House, Senate, and legislative branch support agencies. Sourced from SAM.gov with RSS feed for alerts.",
+        siteUrl: "https://jeremyschlatter-intern.github.io/congressional-rfps/",
+        reportUrl: "https://github.com/jeremyschlatter-intern/congressional-rfps/blob/main/REPORT.md",
+        repoUrl: "https://github.com/jeremyschlatter-intern/congressional-rfps",
+        live: true
+      },
+      {
+        title: "Committee Funding Levels Tracker",
+        slug: "track-committee-funding-levels",
+        description: "Track House and Senate committee funding resolutions across congresses. See how committee budgets have changed over time with interactive charts.",
+        siteUrl: "https://jeremyschlatter-intern.github.io/committee-funding-tracker/",
+        reportUrl: "https://github.com/jeremyschlatter-intern/committee-funding-tracker/blob/main/REPORT.md",
+        repoUrl: "https://github.com/jeremyschlatter-intern/committee-funding-tracker",
+        live: true
+      },
+      {
+        title: "GAO Reports Reader",
+        slug: "transform-gao-reports-into-markdown",
+        description: "GAO reports transformed from PDFs into readable Markdown, HTML, and EPUB formats. Read on your Kindle or any device. Searchable archive with RSS feed.",
+        siteUrl: "https://jeremyschlatter-intern.github.io/gao-reports-reader/",
+        reportUrl: "https://github.com/jeremyschlatter-intern/gao-reports-reader/blob/main/AFTER_ACTION_REPORT.md",
+        repoUrl: "https://github.com/jeremyschlatter-intern/gao-reports-reader",
+        live: true
+      },
+      {
+        title: "House Committee Spending Dashboard",
+        slug: "transform-house-committee-spending-reports-into-data",
+        description: "House committees report monthly spending to the House Admin Committee as PDFs. This tool extracts that data into searchable, sortable spreadsheets with interactive visualizations.",
+        siteUrl: "https://jeremyschlatter-intern.github.io/house-committee-spending/",
+        reportUrl: "https://github.com/jeremyschlatter-intern/house-committee-spending/blob/main/after-action-report.md",
+        repoUrl: "https://github.com/jeremyschlatter-intern/house-committee-spending",
+        live: true
+      },
+      {
+        title: "House Disbursements Data Explorer",
+        slug: "statements-of-disbursements-as-data",
+        description: "16 years of House spending data (2009\u20132025) from the quarterly Statements of Disbursements, converted to structured data. Explore staff pay, office spending, and trends.",
+        siteUrl: "https://jeremyschlatter-intern.github.io/house-disbursements-data/",
+        reportUrl: "https://github.com/jeremyschlatter-intern/house-disbursements-data/blob/main/AFTER_ACTION_REPORT.md",
+        repoUrl: "https://github.com/jeremyschlatter-intern/house-disbursements-data",
+        live: true
+      },
+      {
+        title: "Appropriations Line Items Explorer",
+        slug: "appropriations-line-items",
+        description: "Explore House and Senate appropriations line-item spending data extracted from committee report PDFs. Track spending by line item across years and compare chambers.",
+        siteUrl: "https://jeremyschlatter-intern.github.io/appropriations-explorer/",
+        reportUrl: "https://github.com/jeremyschlatter-intern/appropriations-explorer/blob/main/AFTER_ACTION_REPORT.md",
+        repoUrl: "https://github.com/jeremyschlatter-intern/appropriations-explorer",
+        live: true
+      },
+      {
+        title: "Unified Hearing & Markup Data",
+        slug: "unified-hearing-markup-data",
+        description: "All relevant information about congressional hearings in one place: dates, committees, video links, transcripts, and event IDs cross-referenced across Congress.gov, docs.house.gov, and committee YouTube channels.",
+        siteUrl: null,
+        reportUrl: null,
+        repoUrl: null,
+        live: false,
+        pendingReason: "Deploying"
+      },
+      {
+        title: "Appropriations Notices Tracker",
+        slug: "track-appropriations-notices",
+        description: "Track upcoming appropriations proceedings with deadlines for public witness testimony, member office submissions, and in-person testimony requests across all 12 subcommittees.",
+        siteUrl: null,
+        reportUrl: null,
+        repoUrl: null,
+        live: false,
+        pendingReason: "Deploying"
+      },
+      {
+        title: "Resolution Alerts",
+        slug: "create-an-alert-for-resolutions-that-passed-the-prior-day",
+        description: "Daily alerts for resolutions passed by the Senate and House, including full text from the Congressional Record that often isn't on Congress.gov.",
+        siteUrl: null,
+        reportUrl: null,
+        repoUrl: null,
+        live: false,
+        pendingReason: "Deploying"
+      },
+      {
+        title: "GovTrack Newsletter Generator",
+        slug: "write-my-govtrack-newsletter-for-me",
+        description: "Automatically generates a weekly newsletter covering House and Senate floor activity, committee schedules, and key votes in the style of GovTrack's weekly preview.",
+        siteUrl: null,
+        reportUrl: null,
+        repoUrl: null,
+        live: false,
+        pendingReason: "Deploying"
+      },
+      {
+        title: "YouTube Video Dashboard",
+        slug: "dashboard-for-youtube-videos",
+        description: "Dashboard tracking which House committee YouTube videos include proper event IDs. Ranks committees by consistency and identifies videos missing event IDs so they can be linked on Congress.gov.",
+        siteUrl: null,
+        reportUrl: null,
+        repoUrl: null,
+        live: false,
+        pendingReason: "Requires server"
+      },
+      {
+        title: "CRS Reports to HTML",
+        slug: "crs-reports-to-html",
+        description: "Transform thousands of older CRS reports into HTML and Markdown formats for the EveryCRSReport website. Includes subject matter tagging and EPUB generation.",
+        siteUrl: null,
+        reportUrl: null,
+        repoUrl: null,
+        live: false,
+        pendingReason: "Requires server"
+      },
+      {
+        title: "CRS Reports to Wikipedia",
+        slug: "crs-reports-to-wikipedia",
+        description: "Use AI to identify relevant Wikipedia articles and help infuse CRS report content into them, improving the quality of policy information available to the public.",
+        siteUrl: null,
+        reportUrl: null,
+        repoUrl: null,
+        live: false,
+        pendingReason: "Requires server"
+      },
+      {
+        title: "Floor Schedule",
+        slug: "floor-schedule",
+        description: "House and Senate floor schedule data integrated with committee schedule trackers. Generates iCal files for the week's proceedings so you can add them to your calendar.",
+        siteUrl: null,
+        reportUrl: null,
+        repoUrl: null,
+        live: false,
+        pendingReason: "Requires server"
+      },
+      {
+        title: "Witness Database",
+        slug: "witness-database",
+        description: "Database of all witnesses in House and Senate proceedings with unique IDs, testimony transcripts, written remarks, and Questions for the Record. Searchable by name or title.",
+        siteUrl: null,
+        reportUrl: null,
+        repoUrl: null,
+        live: false,
+        pendingReason: "Requires server"
+      },
+      {
+        title: "Submit Appropriations Documentation",
+        slug: "submit-appropriations-documentation",
+        description: "Streamline submitting bill text and committee report items to individual member offices by crosswalking spreadsheet data to each office's Google Form templates.",
+        siteUrl: null,
+        reportUrl: null,
+        repoUrl: null,
+        live: false,
+        pendingReason: "Requires server"
+      },
+      {
+        title: "CBJ and Approps Report Language Alignment",
+        slug: "line-up-cbjs-and-approps-committee-report-language",
+        description: "Connect each agency's Congressional Budget Justifications with the corresponding appropriations committee report language sections for easy comparison.",
+        siteUrl: null,
+        reportUrl: null,
+        repoUrl: null,
+        live: false,
+        pendingReason: "Requires server"
+      }
+    ];
+
+    function renderProjects() {
+      const liveContainer = document.getElementById('live-projects');
+      const comingSoonContainer = document.getElementById('coming-soon-projects');
+      let liveCount = 0;
+
+      projects.forEach(p => {
+        const card = document.createElement('div');
+        card.className = 'project-card';
+
+        if (p.live && p.siteUrl) {
+          liveCount++;
+          let links = `<a href="${p.siteUrl}" class="btn-primary" target="_blank">View Live Tool</a>`;
+          if (p.reportUrl) links += `<a href="${p.reportUrl}" class="btn-secondary" target="_blank">After-Action Report</a>`;
+          if (p.repoUrl) links += `<a href="${p.repoUrl}" class="btn-code" target="_blank">Source Code</a>`;
+
+          card.innerHTML = `
+            <h3>${p.title} <span class="badge badge-live">Live</span></h3>
+            <div class="description">${p.description}</div>
+            <div class="project-links">${links}</div>
+          `;
+          liveContainer.appendChild(card);
+        } else {
+          const reason = p.pendingReason || 'Coming soon';
+          card.innerHTML = `
+            <h3>${p.title} <span class="badge badge-dynamic">${reason}</span></h3>
+            <div class="description">${p.description}</div>
+          `;
+          comingSoonContainer.appendChild(card);
+        }
+      });
+
+      document.getElementById('project-count').textContent = liveCount;
+    }
+
+    renderProjects();
+  </script>
+</body>
+</html>
