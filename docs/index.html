@@ -16,9 +16,11 @@
       --text-3: #8a847c;
       --accent: #b8860b;
       --accent-soft: #f5edd8;
-      --link: #2b5c8a;
-      --link-hover: #1a3d5e;
+      --link: #2c5282;
+      --link-hover: #1a2744;
       --border: #ddd8d0;
+      --navy: #1a2744;
+      --blue: #2c5282;
       --header-bg: #161616;
       --serif: 'Crimson Pro', Georgia, serif;
       --sans: 'Figtree', system-ui, sans-serif;
@@ -34,7 +36,7 @@
 
     /* HEADER */
     header {
-      background: var(--header-bg);
+      background: linear-gradient(135deg, var(--navy) 0%, var(--blue) 100%);
       color: #fff;
       padding: 3.5rem 2rem 3rem;
       text-align: center;
@@ -81,7 +83,7 @@
       font-family: var(--serif);
       font-size: 2.75rem;
       font-weight: 600;
-      color: var(--accent);
+      color: var(--blue);
       display: block;
       line-height: 1;
     }
@@ -117,6 +119,9 @@
       color: var(--text-2);
       line-height: 1.8;
       max-width: 680px;
+    }
+    .intro p + p {
+      margin-top: 0.75rem;
     }
     .intro a {
       color: var(--link);
@@ -418,7 +423,8 @@
 
   <main>
     <section class="intro">
-      <p>Each project was conceived by congressional staff and built autonomously by <a href="https://claude.ai">Claude Code</a>, with multiple agents running in parallel. Active build times ranged from 36 minutes to 4.2 hours (median ~1 hour), though some projects waited hours for API rate limits to reset between parallel agents. Explore the live demos and after-action reports. Project specs from <a href="https://github.com/DanielSchuman/Policy/wiki/Leg-Tech">Daniel Schuman's Leg Tech wiki</a>.</p>
+      <p>Each project was conceived by congressional staff and built autonomously by <a href="https://claude.ai">Claude Code</a>, with multiple agents running in parallel. Active build times ranged from 36 minutes to 4.2 hours (median ~1 hour). Explore the live demos and after-action reports.</p>
+      <p>Project specs from <a href="https://github.com/DanielSchuman/Policy/wiki/Leg-Tech">Daniel Schuman's Leg Tech wiki</a>.</p>
     </section>
 
     <section class="project-section">
