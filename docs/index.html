@@ -239,11 +239,8 @@
       <p>Each project below was conceived by congressional staff and built autonomously by Claude Code. Click through to explore live demos and read the after-action reports detailing how each tool was built. The original project specs come from <a href="https://github.com/DanielSchuman/Policy/wiki/Leg-Tech" style="color: var(--blue);">Daniel Schuman's Leg Tech wiki</a>.</p>
     </div>
 
-    <h2 class="section-title">Live Projects</h2>
+    <h2 class="section-title">All Projects</h2>
     <div class="projects" id="live-projects"></div>
-
-    <h2 class="section-title" style="margin-top: 3rem;">Coming Soon</h2>
-    <div class="projects" id="coming-soon-projects"></div>
   </main>
   <footer>
     <p>Built by <a href="https://palisaderesearch.org">Palisade Research</a> using <a href="https://claude.ai">Claude Code</a> &middot; Project ideas from <a href="https://github.com/DanielSchuman/Policy/wiki/Leg-Tech">Daniel Schuman</a></p>
@@ -252,54 +249,22 @@
   <script>
     const projects = [
       {
-        title: "Bills to Committee Predictor",
-        description: "Using historical bill referral patterns, predict which committees a bill will be referred to. Enter a bill number or describe proposed legislation and get committee predictions with confidence scores.",
-        fullDescription: "<p><strong>Bills to Committee</strong></p><p>Using historical bill referral patterns, predict which bills will be referred to which committees. Make this available as a dataset or an add-on-app that runs on top of congress.gov or govtrack.us</p>",
-        wikiAnchor: "bills-to-committee",
-        siteUrl: "https://jeremyschlatter-intern.github.io/bills-to-committee/",
-        reportUrl: "https://github.com/jeremyschlatter-intern/bills-to-committee/blob/master/AFTER_ACTION_REPORT.md",
-        repoUrl: "https://github.com/jeremyschlatter-intern/bills-to-committee",
-        live: true
+        title: "Unified Hearing & Markup Data",
+        description: "All relevant information about congressional hearings in one place: dates, committees, video links, transcripts, and event IDs cross-referenced across Congress.gov, docs.house.gov, and committee YouTube channels.",
+        fullDescription: "<p><strong>Unified Hearing &amp; Markup Data</strong></p><p>Congress does not contain all relevant information about hearings in one place, although it has been improving over time.</p><p><strong>Step 1</strong> is to create a spreadsheet that pulls in hearing date, whether it's a hearing or markup, the title, the committee, whether it is full committee or subcommittee, the webpage from the committee, from docs.house.gov, where the video is available, and where you can find the transcript.</p><p><strong>Step 2</strong> is to update a Wiki page to publish the information as prose.</p><p><strong>Step 3</strong> may be to provide notice when new information is published.</p>",
+        wikiAnchor: "unified-hearing--markup-data",
+        siteUrl: "https://jeremyschlatter-intern.github.io/unified-hearing-markup-data/",
+        reportUrl: "https://github.com/jeremyschlatter-intern/unified-hearing-markup-data/blob/main/REPORT.md",
+        repoUrl: "https://github.com/jeremyschlatter-intern/unified-hearing-markup-data"
       },
       {
-        title: "Bill Delay Tracker",
-        description: "Dashboard tracking how long Congress.gov takes to publish CRS summaries after bill text is available. Visualizes delays by bill count, page count, and committee-reported bills.",
-        fullDescription: "<p><strong>Bill Delay Tracker</strong></p><p>Keep track of how long it takes congress.gov to create a summary for a bill for which it has published text.</p><p>Make it as a dashboard. Look at it several ways:</p><ul><li>count the total number of pages in the bills</li><li>count by the number of bills</li><li>look at the number of bills that have been reported by committee</li></ul>",
-        wikiAnchor: "bill-delay-tracker",
-        siteUrl: "https://jeremyschlatter-intern.github.io/bill-delay-tracker/",
-        reportUrl: "https://github.com/jeremyschlatter-intern/bill-delay-tracker/blob/master/REPORT.md",
-        repoUrl: "https://github.com/jeremyschlatter-intern/bill-delay-tracker",
-        live: true
-      },
-      {
-        title: "Appropriations Bill Versions Tracker",
-        description: "Track every version of the 12 annual appropriations bills as they move through subcommittee, full committee, floor votes, and conference. Links to bill text, report language, amendments, and press releases.",
-        fullDescription: "<p><strong>Appropriations bill versions</strong></p><p>Appropriators routinely publish bill text and committee reports on their committee websites and it can take a long time for that information to make its way onto congress.gov.</p><p>Create a spreadsheet that contains:</p><ul><li>The bill text as introduced in subcommittee</li><li>The bill text as reported by subcommittee</li><li>The press release summarizing the committee action</li><li>A link to any amendments offered and adopted at subcommittee</li><li>The bill text as published prior to consideration by the full committee</li><li>The report language as published prior to consideration by full committee</li><li>The bill text as adopted by the full committee</li><li>Any amendments offered, whether adopted, by the committee</li><li>The report language as adopted by the full committee</li><li>The joint explanatory statement that accompanies the final bill as adopted in either/both chambers</li></ul><p>Other features: track whether/how bill text or report language has changed as the measure has moved; compare between chambers; identify all directions given to agencies/offices in report language; track when reports are due back from entities.</p>",
-        wikiAnchor: "appropriations-bill-versions",
-        siteUrl: "https://jeremyschlatter-intern.github.io/appropriations-tracker/",
-        reportUrl: "https://github.com/jeremyschlatter-intern/appropriations-tracker/blob/master/REPORT.md",
-        repoUrl: "https://github.com/jeremyschlatter-intern/appropriations-tracker",
-        live: true
-      },
-      {
-        title: "Committee Proceeding Transcripts",
-        description: "Free, immediate transcripts of congressional committee hearings. No more waiting a year or paying for a private service. Includes automatic summaries and EPUB downloads.",
-        fullDescription: "<p><strong>Committee proceeding Transcripts</strong></p><p>Committees have proceedings all the time. If you want a transcript you have to wait a year or more from Congress or pay for a private service. Use appropriate tools to create an immediate transcript of the committee proceedings and make them available at a static website.</p><p>Further consider creating an automatic summary of what was discussed. Consider also publishing as an EPUB. Also consider connecting the automatic transcripts to <em>Unified Hearing &amp; Markup Data</em>.</p>",
-        wikiAnchor: "committee-proceeding-transcripts",
-        siteUrl: "https://jeremyschlatter-intern.github.io/committee-transcripts/",
-        reportUrl: "https://github.com/jeremyschlatter-intern/committee-transcripts/blob/main/AFTER_ACTION_REPORT.md",
-        repoUrl: "https://github.com/jeremyschlatter-intern/committee-transcripts",
-        live: true
-      },
-      {
-        title: "Congressional Job Tracker",
-        description: "Aggregating employment opportunities across Congress \u2014 Senate, House, support offices, and legislative branch agencies like GAO, CRS, and the Capitol Police. Updated regularly with RSS feed.",
-        fullDescription: "<p><strong>Congressional job tracker</strong></p><p>Create a bsky feed / spreadsheet that lists all jobs on the hill.</p><ul><li>Clean and parse the data (probably using AI) from the <a href=\"https://www.house.gov/employment/positions-with-members-and-committees\">House's employment PDF</a> that comes out weekly</li><li>Organize the data <a href=\"https://employment.senate.gov/job-vacancies/\">published by the Senate</a> for its political and non-political entities</li><li>Scrape the House website for <a href=\"https://www.house.gov/employment/positions-with-other-house-organizations\">support office job postings</a></li><li>Troll USA JOBS for support offices and agencies, such as GAO, LC, CRS, USCP, AOC via the <a href=\"https://developer.usajobs.gov/\">USA Jobs API</a></li></ul><p>Keep track of when the items are first posted.</p>",
-        wikiAnchor: "congressional-job-tracker",
-        siteUrl: "https://jeremyschlatter-intern.github.io/congressional-job-tracker/",
-        reportUrl: "https://github.com/jeremyschlatter-intern/congressional-job-tracker/blob/main/REPORT.md",
-        repoUrl: "https://github.com/jeremyschlatter-intern/congressional-job-tracker",
-        live: true
+        title: "YouTube Video Dashboard",
+        description: "Dashboard tracking which House committee YouTube videos include proper event IDs. Ranks committees by consistency and identifies videos missing event IDs so they can be linked on Congress.gov.",
+        fullDescription: "<p><strong>Dashboard for YouTube Videos</strong></p><p>House committees do not always put the event ID on Youtube videos. The purpose is to either encourage committees to put event IDs in their video descriptions on youtube or alert committees when they've failed to do so.</p><p>We should track all the various committee youtube videos and crosscheck them against official event id information either from congress.gov or docs.house.gov.</p><p>The dashboard should rank committee consistency of putting event ids on videos. Committees with the highest consistency get a good grade, those with low consistency get a bad grade.</p>",
+        wikiAnchor: "dashboard-for-youtube-videos",
+        siteUrl: "https://leg-tech-dashboard-for-youtube-videos.fly.dev/",
+        reportUrl: "https://github.com/jeremyschlatter-intern/youtube-video-dashboard/blob/main/AFTER_ACTION_REPORT.md",
+        repoUrl: "https://github.com/jeremyschlatter-intern/youtube-video-dashboard"
       },
       {
         title: "GAO Reports to Committee Hearings",
@@ -308,78 +273,34 @@
         wikiAnchor: "connect-gao-reports-to-committee-hearings",
         siteUrl: "https://jeremyschlatter-intern.github.io/gao-hearing-connector/",
         reportUrl: "https://github.com/jeremyschlatter-intern/gao-hearing-connector/blob/main/AFTER_ACTION_REPORT.md",
-        repoUrl: "https://github.com/jeremyschlatter-intern/gao-hearing-connector",
-        live: true
+        repoUrl: "https://github.com/jeremyschlatter-intern/gao-hearing-connector"
       },
       {
-        title: "Congressional RFPs Tracker",
-        description: "Track new requests for proposals and contracts from the House, Senate, and legislative branch support agencies. Sourced from SAM.gov with RSS feed for alerts.",
-        fullDescription: "<p><strong>RFPs for congress</strong></p><p>Create an alert for new requests for proposals \u2014 i.e., contracts \u2014 let by the House, Senate, and its support agencies. Tweet them out on bsky and maintain in a spreadsheet.</p><p>The data lives on <a href=\"https://sam.gov/opportunities\">sam.gov</a>, but that website is not great. Limit just to leg branch agencies.</p>",
-        wikiAnchor: "rfps-for-congress",
-        siteUrl: "https://jeremyschlatter-intern.github.io/congressional-rfps/",
-        reportUrl: "https://github.com/jeremyschlatter-intern/congressional-rfps/blob/master/REPORT.md",
-        repoUrl: "https://github.com/jeremyschlatter-intern/congressional-rfps",
-        live: true
+        title: "Floor Schedule",
+        description: "House and Senate floor schedule data integrated with committee schedule trackers. Generates iCal files for the week's proceedings so you can add them to your calendar.",
+        fullDescription: "<p><strong>Floor schedule</strong></p><p>The House and (to a lesser extent the) Senate publish information about upcoming floor schedules. Take that data and infuse it into the already existing committee schedule trackers on congress.gov and possibly govtrack.us.</p><p>Turn the week's committee schedule into an ical file.</p>",
+        wikiAnchor: "floor-schedule",
+        siteUrl: "https://leg-tech-floor-schedule.fly.dev/",
+        reportUrl: "https://github.com/jeremyschlatter-intern/floor-schedule/blob/main/AFTER_ACTION_REPORT.md",
+        repoUrl: "https://github.com/jeremyschlatter-intern/floor-schedule"
       },
       {
-        title: "Committee Funding Levels Tracker",
-        description: "Track House and Senate committee funding resolutions across congresses. See how committee budgets have changed over time with interactive charts.",
-        fullDescription: "<p><strong>Track committee funding levels</strong></p><p>The House and Senate pass individual resolutions to provide funding for committees. Find those resolutions for each congress, which follow a formula, and pull the data and stick it into a spreadsheet going back in time.</p>",
-        wikiAnchor: "track-committee-funding-levels",
-        siteUrl: "https://jeremyschlatter-intern.github.io/committee-funding-tracker/",
-        reportUrl: "https://github.com/jeremyschlatter-intern/committee-funding-tracker/blob/master/REPORT.md",
-        repoUrl: "https://github.com/jeremyschlatter-intern/committee-funding-tracker",
-        live: true
+        title: "Committee Proceeding Transcripts",
+        description: "Free, immediate transcripts of congressional committee hearings. No more waiting a year or paying for a private service. Includes automatic summaries and EPUB downloads.",
+        fullDescription: "<p><strong>Committee proceeding Transcripts</strong></p><p>Committees have proceedings all the time. If you want a transcript you have to wait a year or more from Congress or pay for a private service. Use appropriate tools to create an immediate transcript of the committee proceedings and make them available at a static website.</p><p>Further consider creating an automatic summary of what was discussed. Consider also publishing as an EPUB. Also consider connecting the automatic transcripts to <em>Unified Hearing &amp; Markup Data</em>.</p>",
+        wikiAnchor: "committee-proceeding-transcripts",
+        siteUrl: "https://jeremyschlatter-intern.github.io/committee-transcripts/",
+        reportUrl: "https://github.com/jeremyschlatter-intern/committee-transcripts/blob/main/AFTER_ACTION_REPORT.md",
+        repoUrl: "https://github.com/jeremyschlatter-intern/committee-transcripts"
       },
       {
-        title: "GAO Reports Reader",
-        description: "GAO reports transformed from PDFs into readable Markdown, HTML, and EPUB formats. Read on your Kindle or any device. Searchable archive with RSS feed.",
-        fullDescription: "<p><strong>Transform GAO reports into markdown</strong></p><p>GAO reports are published as PDFs. You should be able to read them as epub on your kindle or in whatever format you want.</p><p>We want to host the GAO reports and publish them.</p>",
-        wikiAnchor: "transform-gao-reports-into-markdown",
-        siteUrl: "https://jeremyschlatter-intern.github.io/gao-reports-reader/",
-        reportUrl: "https://github.com/jeremyschlatter-intern/gao-reports-reader/blob/main/AFTER_ACTION_REPORT.md",
-        repoUrl: "https://github.com/jeremyschlatter-intern/gao-reports-reader",
-        live: true
-      },
-      {
-        title: "House Committee Spending Dashboard",
-        description: "House committees report monthly spending to the House Admin Committee as PDFs. This tool extracts that data into searchable, sortable spreadsheets with interactive visualizations.",
-        fullDescription: "<p><strong>Transform House Committee spending reports into data</strong></p><p>House committees report monthly their spending to the House Admin Committee. See <a href=\"https://cha.house.gov/committee-reports\">here</a>.</p><p>This is published as PDFs. Have it published as data. Also consider showing each month in a year in a central spreadsheet. Also throw an alert when a committee hasn't submitted their stuff.</p><p>Turn the PDF data into spreadsheets and visualize it.</p>",
-        wikiAnchor: "transform-house-committee-spending-reports-into-data",
-        siteUrl: "https://jeremyschlatter-intern.github.io/house-committee-spending/",
-        reportUrl: "https://github.com/jeremyschlatter-intern/house-committee-spending/blob/main/after-action-report.md",
-        repoUrl: "https://github.com/jeremyschlatter-intern/house-committee-spending",
-        live: true
-      },
-      {
-        title: "House Disbursements Data Explorer",
-        description: "16 years of House spending data (2009\u20132025) from the quarterly Statements of Disbursements, converted to structured data. Explore staff pay, office spending, and trends.",
-        fullDescription: "<p><strong>Statements of Disbursements as Data</strong></p><p>The <a href=\"https://www.house.gov/the-house-explained/open-government/statement-of-disbursements\">House's statements of disbursements</a>, and the <a href=\"https://www.senate.gov/legislative/common/generic/report_secsen.htm\">senate secretary of the senate reports</a>, show quarterly and semi-annually spending for the House and Senate. These reports can run thousands of pages long.</p><p>All the data, that can go back decades, should be converted to structured data spreadsheets. Eventually, they should be cleaned up to provide unique identifiers for individuals and the ability to track data on an annual basis (things like staff turnover, staffer pay, etc.)</p><p>Use the pre-existing Sunlight Foundation/ ProPublica scraper tools and turn scanned statements of disbursements into spreadsheet data for House quarterly spending going back to 1980 or so.</p>",
-        wikiAnchor: "statements-of-disbursements-as-data",
-        siteUrl: "https://jeremyschlatter-intern.github.io/house-disbursements-data/",
-        reportUrl: "https://github.com/jeremyschlatter-intern/house-disbursements-data/blob/master/AFTER_ACTION_REPORT.md",
-        repoUrl: "https://github.com/jeremyschlatter-intern/house-disbursements-data",
-        live: true
-      },
-      {
-        title: "Appropriations Line Items Explorer",
-        description: "Explore House and Senate appropriations line-item spending data extracted from committee report PDFs. Track spending by line item across years and compare chambers.",
-        fullDescription: "<p><strong>Appropriations line items</strong></p><p>Look at the House and Senate appropriations tables published at the end of the approps committee reports, which show line item spending. Transform those into data tables that track spending by line item going back years.</p><p>At the end of each committee report for <a href=\"https://www.congress.gov/crs-appropriations-status-table\">the 12 appropriations subcommittees</a> is a table of spending represented in the bill.</p><p>It'd be a fair amount of work, but once it's done, it'd be incredibly helpful to track spending over time and we wouldn't ever have to go backwards in time again.</p>",
-        wikiAnchor: "appropriations-line-items",
-        siteUrl: "https://jeremyschlatter-intern.github.io/appropriations-explorer/",
-        reportUrl: "https://github.com/jeremyschlatter-intern/appropriations-explorer/blob/main/AFTER_ACTION_REPORT.md",
-        repoUrl: "https://github.com/jeremyschlatter-intern/appropriations-explorer",
-        live: true
-      },
-      {
-        title: "Unified Hearing & Markup Data",
-        description: "All relevant information about congressional hearings in one place: dates, committees, video links, transcripts, and event IDs cross-referenced across Congress.gov, docs.house.gov, and committee YouTube channels.",
-        fullDescription: "<p><strong>Unified Hearing &amp; Markup Data</strong></p><p>Congress does not contain all relevant information about hearings in one place, although it has been improving over time.</p><p><strong>Step 1</strong> is to create a spreadsheet that pulls in hearing date, whether it's a hearing or markup, the title, the committee, whether it is full committee or subcommittee, the webpage from the committee, from docs.house.gov, where the video is available, and where you can find the transcript.</p><p><strong>Step 2</strong> is to update a Wiki page to publish the information as prose.</p><p><strong>Step 3</strong> may be to provide notice when new information is published.</p>",
-        wikiAnchor: "unified-hearing--markup-data",
-        siteUrl: "https://jeremyschlatter-intern.github.io/unified-hearing-markup-data/",
-        reportUrl: "https://github.com/jeremyschlatter-intern/unified-hearing-markup-data/blob/main/REPORT.md",
-        repoUrl: "https://github.com/jeremyschlatter-intern/unified-hearing-markup-data",
-        live: true
+        title: "Witness Database",
+        description: "Database of all witnesses in House and Senate proceedings with unique IDs, testimony transcripts, written remarks, and Questions for the Record. Searchable by name or title.",
+        fullDescription: "<p><strong>Witness database</strong></p><p>Create a database of all witnesses in the House and Senate. Give a unique ID to each witness and track all the proceedings on which they've testified. Include a transcript of their written remarks, their written testimony, and summaries of both.</p><p>Also, they likely were asked Questions for the Record that would show up in a committee transcript. Pull that information as well.</p><p>Don't just track by the witness, but also by the title. For example, \"Jane Smith\" or \"FAA Administrator\".</p>",
+        wikiAnchor: "witness-database",
+        siteUrl: "https://leg-tech-witness-database.fly.dev/",
+        reportUrl: "https://github.com/jeremyschlatter-intern/witness-database/blob/main/AFTER_ACTION_REPORT.md",
+        repoUrl: "https://github.com/jeremyschlatter-intern/witness-database"
       },
       {
         title: "Appropriations Notices Tracker",
@@ -388,18 +309,88 @@
         wikiAnchor: "track-appropriations-notices",
         siteUrl: "https://jeremyschlatter-intern.github.io/appropriations-notices-tracker/",
         reportUrl: "https://github.com/jeremyschlatter-intern/appropriations-notices-tracker/blob/main/AFTER_ACTION_REPORT.md",
-        repoUrl: "https://github.com/jeremyschlatter-intern/appropriations-notices-tracker",
-        live: true
+        repoUrl: "https://github.com/jeremyschlatter-intern/appropriations-notices-tracker"
       },
       {
-        title: "Resolution Alerts",
-        description: "Daily alerts for resolutions passed by the Senate and House, including full text from the Congressional Record that often isn't on Congress.gov.",
-        fullDescription: "<p><strong>Create an alert for resolutions that passed the prior day</strong></p><p>The Senate and sometimes the House pass a bunch of sneaky resolutions. Transform the alerts, with the text that's published in the congressional record but not always on congress.gov, into an email alert.</p>",
-        wikiAnchor: "create-an-alert-for-resolutions-that-passed-the-prior-day",
-        siteUrl: "https://jeremyschlatter-intern.github.io/resolution-alerts/",
-        reportUrl: "https://github.com/jeremyschlatter-intern/resolution-alerts/blob/main/REPORT.md",
-        repoUrl: "https://github.com/jeremyschlatter-intern/resolution-alerts",
-        live: true
+        title: "Submit Appropriations Documentation",
+        description: "Streamline submitting bill text and committee report items to individual member offices by crosswalking spreadsheet data to each office's Google Form templates.",
+        fullDescription: "<p><strong>Submit appropriations documentation</strong></p><p>It's a pain to submit bill text or committee report items to individual member offices, especially when you've got a lot. Their submission templates are google forms that are similar but not the same.</p><p>Make it possible to crosswalk a spreadsheet that you've already generated to an individual office's forms. Then have it autofill that form. Also make it possible to transform a google doc into the spreadsheet.</p>",
+        wikiAnchor: "submit-appropriations-documentation",
+        siteUrl: "https://leg-tech-submit-appropriations.fly.dev/",
+        reportUrl: "https://github.com/jeremyschlatter-intern/submit-appropriations-documentation/blob/main/AFTER_ACTION_REPORT.md",
+        repoUrl: "https://github.com/jeremyschlatter-intern/submit-appropriations-documentation"
+      },
+      {
+        title: "Appropriations Bill Versions Tracker",
+        description: "Track every version of the 12 annual appropriations bills as they move through subcommittee, full committee, floor votes, and conference. Links to bill text, report language, amendments, and press releases.",
+        fullDescription: "<p><strong>Appropriations bill versions</strong></p><p>Appropriators routinely publish bill text and committee reports on their committee websites and it can take a long time for that information to make its way onto congress.gov.</p><p>Create a spreadsheet that contains:</p><ul><li>The bill text as introduced in subcommittee</li><li>The bill text as reported by subcommittee</li><li>The press release summarizing the committee action</li><li>A link to any amendments offered and adopted at subcommittee</li><li>The bill text as published prior to consideration by the full committee</li><li>The report language as published prior to consideration by full committee</li><li>The bill text as adopted by the full committee</li><li>Any amendments offered, whether adopted, by the committee</li><li>The report language as adopted by the full committee</li><li>The joint explanatory statement that accompanies the final bill as adopted in either/both chambers</li></ul><p>Other features: track whether/how bill text or report language has changed as the measure has moved; compare between chambers; identify all directions given to agencies/offices in report language; track when reports are due back from entities.</p>",
+        wikiAnchor: "appropriations-bill-versions",
+        siteUrl: "https://jeremyschlatter-intern.github.io/appropriations-tracker/",
+        reportUrl: "https://github.com/jeremyschlatter-intern/appropriations-tracker/blob/master/REPORT.md",
+        repoUrl: "https://github.com/jeremyschlatter-intern/appropriations-tracker"
+      },
+      {
+        title: "CRS Reports to HTML",
+        description: "Transform thousands of older CRS reports into HTML and Markdown formats for the EveryCRSReport website. Includes subject matter tagging and EPUB generation.",
+        fullDescription: "<p><strong>CRS reports to HTML</strong></p><p>CRS.Congress.gov is now publishing as of 2025 recent CRS reports as HTML, <a href=\"https://gpo.congress.gov/\">available by API</a>. There are many thousands of older CRS reports that are not publicly available as API.</p><p>Update the older CRS reports for which HTML is not available by running this tool. Ideally we'd want the reports in markdown so they can be transformed into multiple versions. Transform them all into epub as well.</p><p>Consider also using AI to identify the subject matter for the CRS reports and generate tags.</p>",
+        wikiAnchor: "crs-reports-to-html",
+        siteUrl: "https://leg-tech-crs-reports-to-html.fly.dev/",
+        reportUrl: "https://github.com/jeremyschlatter-intern/crs-reports-to-html/blob/main/AFTER_ACTION_REPORT.md",
+        repoUrl: "https://github.com/jeremyschlatter-intern/crs-reports-to-html"
+      },
+      {
+        title: "GAO Reports Reader",
+        description: "GAO reports transformed from PDFs into readable Markdown, HTML, and EPUB formats. Read on your Kindle or any device. Searchable archive with RSS feed.",
+        fullDescription: "<p><strong>Transform GAO reports into markdown</strong></p><p>GAO reports are published as PDFs. You should be able to read them as epub on your kindle or in whatever format you want.</p><p>We want to host the GAO reports and publish them.</p>",
+        wikiAnchor: "transform-gao-reports-into-markdown",
+        siteUrl: "https://jeremyschlatter-intern.github.io/gao-reports-reader/",
+        reportUrl: "https://github.com/jeremyschlatter-intern/gao-reports-reader/blob/main/AFTER_ACTION_REPORT.md",
+        repoUrl: "https://github.com/jeremyschlatter-intern/gao-reports-reader"
+      },
+      {
+        title: "CRS Reports to Wikipedia",
+        description: "Use AI to identify relevant Wikipedia articles and help infuse CRS report content into them, improving the quality of policy information available to the public.",
+        fullDescription: "<p><strong>CRS Reports to Wikipedia</strong></p><p>Wikipedia is the #1 source for policy information on the internet but it does not incorporate CRS reports as much as it should.</p><p>Use AI and other technologies to help infuse the contents of CRS reports onto the relevant wikipedia pages to improve the quality of articles.</p>",
+        wikiAnchor: "crs-reports-to-wikipedia",
+        siteUrl: "https://leg-tech-crs-reports-to-wikipedia.fly.dev/",
+        reportUrl: "https://github.com/jeremyschlatter-intern/crs-reports-to-wikipedia/blob/main/AFTER_ACTION_REPORT.md",
+        repoUrl: "https://github.com/jeremyschlatter-intern/crs-reports-to-wikipedia"
+      },
+      {
+        title: "House Disbursements Data Explorer",
+        description: "16 years of House spending data (2009\u20132025) from the quarterly Statements of Disbursements, converted to structured data. Explore staff pay, office spending, and trends.",
+        fullDescription: "<p><strong>Statements of Disbursements as Data</strong></p><p>The <a href=\"https://www.house.gov/the-house-explained/open-government/statement-of-disbursements\">House's statements of disbursements</a>, and the <a href=\"https://www.senate.gov/legislative/common/generic/report_secsen.htm\">senate secretary of the senate reports</a>, show quarterly and semi-annually spending for the House and Senate. These reports can run thousands of pages long.</p><p>All the data, that can go back decades, should be converted to structured data spreadsheets. Eventually, they should be cleaned up to provide unique identifiers for individuals and the ability to track data on an annual basis (things like staff turnover, staffer pay, etc.)</p><p>Use the pre-existing Sunlight Foundation/ ProPublica scraper tools and turn scanned statements of disbursements into spreadsheet data for House quarterly spending going back to 1980 or so.</p>",
+        wikiAnchor: "statements-of-disbursements-as-data",
+        siteUrl: "https://jeremyschlatter-intern.github.io/house-disbursements-data/",
+        reportUrl: "https://github.com/jeremyschlatter-intern/house-disbursements-data/blob/master/AFTER_ACTION_REPORT.md",
+        repoUrl: "https://github.com/jeremyschlatter-intern/house-disbursements-data"
+      },
+      {
+        title: "Bills to Committee Predictor",
+        description: "Using historical bill referral patterns, predict which committees a bill will be referred to. Enter a bill number or describe proposed legislation and get committee predictions with confidence scores.",
+        fullDescription: "<p><strong>Bills to Committee</strong></p><p>Using historical bill referral patterns, predict which bills will be referred to which committees. Make this available as a dataset or an add-on-app that runs on top of congress.gov or govtrack.us</p>",
+        wikiAnchor: "bills-to-committee",
+        siteUrl: "https://jeremyschlatter-intern.github.io/bills-to-committee/",
+        reportUrl: "https://github.com/jeremyschlatter-intern/bills-to-committee/blob/master/AFTER_ACTION_REPORT.md",
+        repoUrl: "https://github.com/jeremyschlatter-intern/bills-to-committee"
+      },
+      {
+        title: "Bill Delay Tracker",
+        description: "Dashboard tracking how long Congress.gov takes to publish CRS summaries after bill text is available. Visualizes delays by bill count, page count, and committee-reported bills.",
+        fullDescription: "<p><strong>Bill Delay Tracker</strong></p><p>Keep track of how long it takes congress.gov to create a summary for a bill for which it has published text.</p><p>Make it as a dashboard. Look at it several ways:</p><ul><li>count the total number of pages in the bills</li><li>count by the number of bills</li><li>look at the number of bills that have been reported by committee</li></ul>",
+        wikiAnchor: "bill-delay-tracker",
+        siteUrl: "https://jeremyschlatter-intern.github.io/bill-delay-tracker/",
+        reportUrl: "https://github.com/jeremyschlatter-intern/bill-delay-tracker/blob/master/REPORT.md",
+        repoUrl: "https://github.com/jeremyschlatter-intern/bill-delay-tracker"
+      },
+      {
+        title: "Congressional Job Tracker",
+        description: "Aggregating employment opportunities across Congress \u2014 Senate, House, support offices, and legislative branch agencies like GAO, CRS, and the Capitol Police. Updated regularly with RSS feed.",
+        fullDescription: "<p><strong>Congressional job tracker</strong></p><p>Create a bsky feed / spreadsheet that lists all jobs on the hill.</p><ul><li>Clean and parse the data (probably using AI) from the <a href=\"https://www.house.gov/employment/positions-with-members-and-committees\">House's employment PDF</a> that comes out weekly</li><li>Organize the data <a href=\"https://employment.senate.gov/job-vacancies/\">published by the Senate</a> for its political and non-political entities</li><li>Scrape the House website for <a href=\"https://www.house.gov/employment/positions-with-other-house-organizations\">support office job postings</a></li><li>Troll USA JOBS for support offices and agencies, such as GAO, LC, CRS, USCP, AOC via the <a href=\"https://developer.usajobs.gov/\">USA Jobs API</a></li></ul><p>Keep track of when the items are first posted.</p>",
+        wikiAnchor: "congressional-job-tracker",
+        siteUrl: "https://jeremyschlatter-intern.github.io/congressional-job-tracker/",
+        reportUrl: "https://github.com/jeremyschlatter-intern/congressional-job-tracker/blob/main/REPORT.md",
+        repoUrl: "https://github.com/jeremyschlatter-intern/congressional-job-tracker"
       },
       {
         title: "GovTrack Newsletter Generator",
@@ -408,93 +399,68 @@
         wikiAnchor: "write-my-govtrack-newsletter-for-me",
         siteUrl: "https://jeremyschlatter-intern.github.io/govtrack-newsletter-generator/",
         reportUrl: "https://github.com/jeremyschlatter-intern/govtrack-newsletter-generator/blob/main/AFTER_ACTION_REPORT.md",
-        repoUrl: "https://github.com/jeremyschlatter-intern/govtrack-newsletter-generator",
-        live: true
+        repoUrl: "https://github.com/jeremyschlatter-intern/govtrack-newsletter-generator"
       },
       {
-        title: "YouTube Video Dashboard",
-        description: "Dashboard tracking which House committee YouTube videos include proper event IDs. Ranks committees by consistency and identifies videos missing event IDs so they can be linked on Congress.gov.",
-        fullDescription: "<p><strong>Dashboard for YouTube Videos</strong></p><p>House committees do not always put the event ID on Youtube videos. The purpose is to either encourage committees to put event IDs in their video descriptions on youtube or alert committees when they've failed to do so.</p><p>We should track all the various committee youtube videos and crosscheck them against official event id information either from congress.gov or docs.house.gov.</p><p>The dashboard should rank committee consistency of putting event ids on videos. Committees with the highest consistency get a good grade, those with low consistency get a bad grade.</p>",
-        wikiAnchor: "dashboard-for-youtube-videos",
-        siteUrl: null,
-        reportUrl: null,
-        repoUrl: null,
-        live: false,
-        pendingReason: "Requires server"
+        title: "Resolution Alerts",
+        description: "Daily alerts for resolutions passed by the Senate and House, including full text from the Congressional Record that often isn't on Congress.gov.",
+        fullDescription: "<p><strong>Create an alert for resolutions that passed the prior day</strong></p><p>The Senate and sometimes the House pass a bunch of sneaky resolutions. Transform the alerts, with the text that's published in the congressional record but not always on congress.gov, into an email alert.</p>",
+        wikiAnchor: "create-an-alert-for-resolutions-that-passed-the-prior-day",
+        siteUrl: "https://jeremyschlatter-intern.github.io/resolution-alerts/",
+        reportUrl: "https://github.com/jeremyschlatter-intern/resolution-alerts/blob/main/REPORT.md",
+        repoUrl: "https://github.com/jeremyschlatter-intern/resolution-alerts"
       },
       {
-        title: "CRS Reports to HTML",
-        description: "Transform thousands of older CRS reports into HTML and Markdown formats for the EveryCRSReport website. Includes subject matter tagging and EPUB generation.",
-        fullDescription: "<p><strong>CRS reports to HTML</strong></p><p>CRS.Congress.gov is now publishing as of 2025 recent CRS reports as HTML, <a href=\"https://gpo.congress.gov/\">available by API</a>. There are many thousands of older CRS reports that are not publicly available as API.</p><p>Update the older CRS reports for which HTML is not available by running this tool. Ideally we'd want the reports in markdown so they can be transformed into multiple versions. Transform them all into epub as well.</p><p>Consider also using AI to identify the subject matter for the CRS reports and generate tags.</p>",
-        wikiAnchor: "crs-reports-to-html",
-        siteUrl: null,
-        reportUrl: null,
-        repoUrl: null,
-        live: false,
-        pendingReason: "Requires server"
+        title: "Congressional RFPs Tracker",
+        description: "Track new requests for proposals and contracts from the House, Senate, and legislative branch support agencies. Sourced from SAM.gov with RSS feed for alerts.",
+        fullDescription: "<p><strong>RFPs for congress</strong></p><p>Create an alert for new requests for proposals \u2014 i.e., contracts \u2014 let by the House, Senate, and its support agencies. Tweet them out on bsky and maintain in a spreadsheet.</p><p>The data lives on <a href=\"https://sam.gov/opportunities\">sam.gov</a>, but that website is not great. Limit just to leg branch agencies.</p>",
+        wikiAnchor: "rfps-for-congress",
+        siteUrl: "https://jeremyschlatter-intern.github.io/congressional-rfps/",
+        reportUrl: "https://github.com/jeremyschlatter-intern/congressional-rfps/blob/master/REPORT.md",
+        repoUrl: "https://github.com/jeremyschlatter-intern/congressional-rfps"
       },
       {
-        title: "CRS Reports to Wikipedia",
-        description: "Use AI to identify relevant Wikipedia articles and help infuse CRS report content into them, improving the quality of policy information available to the public.",
-        fullDescription: "<p><strong>CRS Reports to Wikipedia</strong></p><p>Wikipedia is the #1 source for policy information on the internet but it does not incorporate CRS reports as much as it should.</p><p>Use AI and other technologies to help infuse the contents of CRS reports onto the relevant wikipedia pages to improve the quality of articles.</p>",
-        wikiAnchor: "crs-reports-to-wikipedia",
-        siteUrl: null,
-        reportUrl: null,
-        repoUrl: null,
-        live: false,
-        pendingReason: "Requires server"
+        title: "House Committee Spending Dashboard",
+        description: "House committees report monthly spending to the House Admin Committee as PDFs. This tool extracts that data into searchable, sortable spreadsheets with interactive visualizations.",
+        fullDescription: "<p><strong>Transform House Committee spending reports into data</strong></p><p>House committees report monthly their spending to the House Admin Committee. See <a href=\"https://cha.house.gov/committee-reports\">here</a>.</p><p>This is published as PDFs. Have it published as data. Also consider showing each month in a year in a central spreadsheet. Also throw an alert when a committee hasn't submitted their stuff.</p><p>Turn the PDF data into spreadsheets and visualize it.</p>",
+        wikiAnchor: "transform-house-committee-spending-reports-into-data",
+        siteUrl: "https://jeremyschlatter-intern.github.io/house-committee-spending/",
+        reportUrl: "https://github.com/jeremyschlatter-intern/house-committee-spending/blob/main/after-action-report.md",
+        repoUrl: "https://github.com/jeremyschlatter-intern/house-committee-spending"
       },
       {
-        title: "Floor Schedule",
-        description: "House and Senate floor schedule data integrated with committee schedule trackers. Generates iCal files for the week's proceedings so you can add them to your calendar.",
-        fullDescription: "<p><strong>Floor schedule</strong></p><p>The House and (to a lesser extent the) Senate publish information about upcoming floor schedules. Take that data and infuse it into the already existing committee schedule trackers on congress.gov and possibly govtrack.us.</p><p>Turn the week's committee schedule into an ical file.</p>",
-        wikiAnchor: "floor-schedule",
-        siteUrl: null,
-        reportUrl: null,
-        repoUrl: null,
-        live: false,
-        pendingReason: "Requires server"
+        title: "Committee Funding Levels Tracker",
+        description: "Track House and Senate committee funding resolutions across congresses. See how committee budgets have changed over time with interactive charts.",
+        fullDescription: "<p><strong>Track committee funding levels</strong></p><p>The House and Senate pass individual resolutions to provide funding for committees. Find those resolutions for each congress, which follow a formula, and pull the data and stick it into a spreadsheet going back in time.</p>",
+        wikiAnchor: "track-committee-funding-levels",
+        siteUrl: "https://jeremyschlatter-intern.github.io/committee-funding-tracker/",
+        reportUrl: "https://github.com/jeremyschlatter-intern/committee-funding-tracker/blob/master/REPORT.md",
+        repoUrl: "https://github.com/jeremyschlatter-intern/committee-funding-tracker"
       },
       {
-        title: "Witness Database",
-        description: "Database of all witnesses in House and Senate proceedings with unique IDs, testimony transcripts, written remarks, and Questions for the Record. Searchable by name or title.",
-        fullDescription: "<p><strong>Witness database</strong></p><p>Create a database of all witnesses in the House and Senate. Give a unique ID to each witness and track all the proceedings on which they've testified. Include a transcript of their written remarks, their written testimony, and summaries of both.</p><p>Also, they likely were asked Questions for the Record that would show up in a committee transcript. Pull that information as well.</p><p>Don't just track by the witness, but also by the title. For example, \"Jane Smith\" or \"FAA Administrator\".</p>",
-        wikiAnchor: "witness-database",
-        siteUrl: null,
-        reportUrl: null,
-        repoUrl: null,
-        live: false,
-        pendingReason: "Requires server"
-      },
-      {
-        title: "Submit Appropriations Documentation",
-        description: "Streamline submitting bill text and committee report items to individual member offices by crosswalking spreadsheet data to each office's Google Form templates.",
-        fullDescription: "<p><strong>Submit appropriations documentation</strong></p><p>It's a pain to submit bill text or committee report items to individual member offices, especially when you've got a lot. Their submission templates are google forms that are similar but not the same.</p><p>Make it possible to crosswalk a spreadsheet that you've already generated to an individual office's forms. Then have it autofill that form. Also make it possible to transform a google doc into the spreadsheet.</p>",
-        wikiAnchor: "submit-appropriations-documentation",
-        siteUrl: null,
-        reportUrl: null,
-        repoUrl: null,
-        live: false,
-        pendingReason: "Requires server"
+        title: "Appropriations Line Items Explorer",
+        description: "Explore House and Senate appropriations line-item spending data extracted from committee report PDFs. Track spending by line item across years and compare chambers.",
+        fullDescription: "<p><strong>Appropriations line items</strong></p><p>Look at the House and Senate appropriations tables published at the end of the approps committee reports, which show line item spending. Transform those into data tables that track spending by line item going back years.</p><p>At the end of each committee report for <a href=\"https://www.congress.gov/crs-appropriations-status-table\">the 12 appropriations subcommittees</a> is a table of spending represented in the bill.</p><p>It'd be a fair amount of work, but once it's done, it'd be incredibly helpful to track spending over time and we wouldn't ever have to go backwards in time again.</p>",
+        wikiAnchor: "appropriations-line-items",
+        siteUrl: "https://jeremyschlatter-intern.github.io/appropriations-explorer/",
+        reportUrl: "https://github.com/jeremyschlatter-intern/appropriations-explorer/blob/main/AFTER_ACTION_REPORT.md",
+        repoUrl: "https://github.com/jeremyschlatter-intern/appropriations-explorer"
       },
       {
         title: "CBJ and Approps Report Language Alignment",
         description: "Connect each agency's Congressional Budget Justifications with the corresponding appropriations committee report language sections for easy comparison.",
         fullDescription: "<p><strong>Line up CBJs and Approps Committee report language</strong></p><p>Connect each agency's <a href=\"https://www.usaspending.gov/agency\">budget justifications</a> with appropriations info committee report sections.</p>",
         wikiAnchor: "line-up-cbjs-and-approps-committee-report-language",
-        siteUrl: null,
-        reportUrl: null,
-        repoUrl: null,
-        live: false,
-        pendingReason: "Requires server"
+        siteUrl: "https://leg-tech-cbj-approps.fly.dev/",
+        reportUrl: "https://github.com/jeremyschlatter-intern/cbj-approps-alignment/blob/main/AFTER_ACTION_REPORT.md",
+        repoUrl: "https://github.com/jeremyschlatter-intern/cbj-approps-alignment"
       }
     ];
 
     const WIKI_BASE = "https://github.com/DanielSchuman/Policy/wiki/Leg-Tech#";
 
     function renderProjects() {
-      const liveContainer = document.getElementById('live-projects');
-      const comingSoonContainer = document.getElementById('coming-soon-projects');
+      const container = document.getElementById('live-projects');
       let liveCount = 0;
 
       projects.forEach((p, i) => {
@@ -503,33 +469,22 @@
         const descId = 'desc-' + i;
 
         const expandBtn = `<button class="btn-expand" onclick="toggleDesc('${descId}', this)">Original Spec</button>`;
-        const wikiBtn = p.wikiAnchor ? `<a href="${WIKI_BASE}${p.wikiAnchor}" class="btn-wiki" target="_blank">Wiki</a>` : '';
-        const fullDescHtml = `<div class="full-description" id="${descId}">${p.fullDescription}</div>`;
+        const wikiLink = p.wikiAnchor ? `<p style="margin-top: 0.75rem;"><a href="${WIKI_BASE}${p.wikiAnchor}" target="_blank">View original spec on the Leg Tech wiki &rarr;</a></p>` : '';
+        const fullDescHtml = `<div class="full-description" id="${descId}">${p.fullDescription}${wikiLink}</div>`;
 
-        if (p.live && p.siteUrl) {
-          liveCount++;
-          let links = `<a href="${p.siteUrl}" class="btn-primary" target="_blank">View Live Tool</a>`;
-          if (p.reportUrl) links += `<a href="${p.reportUrl}" class="btn-secondary" target="_blank">After-Action Report</a>`;
-          if (p.repoUrl) links += `<a href="${p.repoUrl}" class="btn-code" target="_blank">Source Code</a>`;
-          links += expandBtn + wikiBtn;
+        liveCount++;
+        let links = `<a href="${p.siteUrl}" class="btn-primary" target="_blank">View Live Tool</a>`;
+        if (p.reportUrl) links += `<a href="${p.reportUrl}" class="btn-secondary" target="_blank">After-Action Report</a>`;
+        if (p.repoUrl) links += `<a href="${p.repoUrl}" class="btn-code" target="_blank">Source Code</a>`;
+        links += expandBtn;
 
-          card.innerHTML = `
-            <h3>${p.title} <span class="badge badge-live">Live</span></h3>
-            <div class="description">${p.description}</div>
-            <div class="project-links">${links}</div>
-            ${fullDescHtml}
-          `;
-          liveContainer.appendChild(card);
-        } else {
-          const reason = p.pendingReason || 'Coming soon';
-          card.innerHTML = `
-            <h3>${p.title} <span class="badge badge-dynamic">${reason}</span></h3>
-            <div class="description">${p.description}</div>
-            <div class="project-links">${expandBtn}${wikiBtn}</div>
-            ${fullDescHtml}
-          `;
-          comingSoonContainer.appendChild(card);
-        }
+        card.innerHTML = `
+          <h3>${p.title} <span class="badge badge-live">Live</span></h3>
+          <div class="description">${p.description}</div>
+          <div class="project-links">${links}</div>
+          ${fullDescHtml}
+        `;
+        container.appendChild(card);
       });
 
       document.getElementById('project-count').textContent = liveCount;
