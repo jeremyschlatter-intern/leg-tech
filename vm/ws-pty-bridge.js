@@ -1,7 +1,7 @@
 // WebSocket-to-PTY bridge for ghostty-web
-// Single PTY spawned on startup. Multiple WebSocket clients share the same view.
-// New clients get a replay of all buffered output, then live updates.
-// PTY is resized to the smallest connected viewport (like tmux).
+// One PTY per browser session (identified by sessionStorage UUID).
+// PTYs persist across reconnects and never time out.
+// Multiple viewers of the same session share the view.
 
 import { createServer } from 'http';
 import pty from '@lydell/node-pty';
@@ -11,58 +11,69 @@ const PORT = process.env.PORT || 8080;
 const DEFAULT_COLS = parseInt(process.env.COLS) || 80;
 const DEFAULT_ROWS = parseInt(process.env.ROWS) || 24;
 
-// Spawn the PTY once on startup
 const user = process.env.SHELL_USER;
 const shell = process.env.SHELL || '/bin/sh';
-const cmd = user ? ['su', ['-', user, '-c', 'exec bash -l']] : [shell, ['-l']];
 
-let ptyCols = DEFAULT_COLS;
-let ptyRows = DEFAULT_ROWS;
+// Map of sessionId -> { term, buffer, clients: Map<ws, {cols, rows}>, ptyCols, ptyRows }
+const sessions = new Map();
 
-const term = pty.spawn(cmd[0], cmd[1], {
-  name: 'xterm-256color',
-  cols: ptyCols,
-  rows: ptyRows,
-  cwd: process.cwd(),
-  env: { ...process.env, TERM: 'xterm-256color' },
-});
+function getOrCreateSession(sessionId) {
+  if (sessions.has(sessionId)) return sessions.get(sessionId);
 
-// Buffer all PTY output for replay
-const buffer = [];
-// Map of ws -> { cols, rows }
-const clients = new Map();
+  const cmd = user ? ['su', ['-', user, '-c', 'exec bash -l']] : [shell, ['-l']];
+  const term = pty.spawn(cmd[0], cmd[1], {
+    name: 'xterm-256color',
+    cols: DEFAULT_COLS,
+    rows: DEFAULT_ROWS,
+    cwd: process.cwd(),
+    env: { ...process.env, TERM: 'xterm-256color' },
+  });
 
-term.onData(data => {
-  buffer.push(data);
-  for (const ws of clients.keys()) {
-    if (ws.readyState === ws.OPEN) ws.send('0' + data);
-  }
-});
+  const session = {
+    term,
+    buffer: [],
+    clients: new Map(),
+    ptyCols: DEFAULT_COLS,
+    ptyRows: DEFAULT_ROWS,
+  };
 
-term.onExit(() => {
-  console.log('PTY exited');
-  for (const ws of clients.keys()) ws.close();
-});
+  term.onData(data => {
+    session.buffer.push(data);
+    for (const ws of session.clients.keys()) {
+      if (ws.readyState === ws.OPEN) ws.send('0' + data);
+    }
+  });
 
-function broadcastClientCount() {
-  const msg = '1' + JSON.stringify({ type: 'clients', count: clients.size });
-  for (const ws of clients.keys()) {
-    if (ws.readyState === ws.OPEN) ws.send(msg);
-  }
+  term.onExit(() => {
+    console.log(`[pty-exit] session=${sessionId}`);
+    for (const ws of session.clients.keys()) ws.close();
+    sessions.delete(sessionId);
+  });
+
+  sessions.set(sessionId, session);
+  console.log(`[new-session] ${sessionId} | ${sessions.size} sessions`);
+  return session;
 }
 
-function resizeToSmallest() {
-  if (clients.size === 0) return;
+function resizeToSmallest(session) {
+  if (session.clients.size === 0) return;
   let minCols = Infinity, minRows = Infinity;
-  for (const size of clients.values()) {
+  for (const size of session.clients.values()) {
     minCols = Math.min(minCols, size.cols);
     minRows = Math.min(minRows, size.rows);
   }
-  if (minCols !== ptyCols || minRows !== ptyRows) {
-    ptyCols = minCols;
-    ptyRows = minRows;
-    term.resize(ptyCols, ptyRows);
-    console.log(`[pty-resize] ${ptyCols}x${ptyRows}`);
+  if (minCols !== session.ptyCols || minRows !== session.ptyRows) {
+    session.ptyCols = minCols;
+    session.ptyRows = minRows;
+    session.term.resize(minCols, minRows);
+    console.log(`[pty-resize] ${minCols}x${minRows}`);
+  }
+}
+
+function broadcastClientCount(session) {
+  const msg = '1' + JSON.stringify({ type: 'clients', count: session.clients.size });
+  for (const ws of session.clients.keys()) {
+    if (ws.readyState === ws.OPEN) ws.send(msg);
   }
 }
 
@@ -82,41 +93,44 @@ const wss = new WebSocketServer({ server });
 
 wss.on('connection', (ws, req) => {
   const params = new URL(req.url, `http://localhost`).searchParams;
+  const sessionId = params.get('session') || 'default';
   const cols = parseInt(params.get('cols')) || DEFAULT_COLS;
   const rows = parseInt(params.get('rows')) || DEFAULT_ROWS;
 
+  const session = getOrCreateSession(sessionId);
+
   // Replay buffered output
-  for (const chunk of buffer) {
+  for (const chunk of session.buffer) {
     ws.send('0' + chunk);
   }
 
-  clients.set(ws, { cols, rows });
-  console.log(`[connect] +client (${cols}x${rows}) | ${clients.size} clients | pty=${ptyCols}x${ptyRows}`);
-  resizeToSmallest();
-  broadcastClientCount();
+  session.clients.set(ws, { cols, rows });
+  console.log(`[connect] session=${sessionId} (${cols}x${rows}) | ${session.clients.size} viewers | ${sessions.size} sessions`);
+  resizeToSmallest(session);
+  broadcastClientCount(session);
 
   ws.on('message', msg => {
     const str = msg.toString();
     try {
       const parsed = JSON.parse(str);
       if (parsed.type === 'resize') {
-        clients.set(ws, { cols: parsed.cols, rows: parsed.rows });
-        console.log(`[resize] client->${parsed.cols}x${parsed.rows} | ${clients.size} clients | pty=${ptyCols}x${ptyRows}`);
-        resizeToSmallest();
+        session.clients.set(ws, { cols: parsed.cols, rows: parsed.rows });
+        console.log(`[resize] session=${sessionId} client->${parsed.cols}x${parsed.rows} | ${session.clients.size} viewers`);
+        resizeToSmallest(session);
         return;
       }
     } catch {}
-    term.write(str);
+    session.term.write(str);
   });
 
   ws.on('close', () => {
-    clients.delete(ws);
-    console.log(`[close] -client | ${clients.size} clients | pty=${ptyCols}x${ptyRows}`);
-    resizeToSmallest();
-    broadcastClientCount();
+    session.clients.delete(ws);
+    console.log(`[close] session=${sessionId} | ${session.clients.size} viewers | ${sessions.size} sessions`);
+    resizeToSmallest(session);
+    broadcastClientCount(session);
   });
 });
 
 server.listen(PORT, () => {
-  console.log(`WS-PTY bridge listening on port ${PORT} (shared PTY)`);
+  console.log(`WS-PTY bridge listening on port ${PORT}`);
 });
