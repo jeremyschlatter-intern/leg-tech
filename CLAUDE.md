@@ -34,3 +34,5 @@ Authenticated users can edit any of the 23 apps via a browser-based terminal run
 ## Environment / Secrets
 
 Secrets set on `leg-tech` Fly app: `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `ANTHROPIC_API_KEY`, `COOKIE_SECRET`, `FLY_API_TOKEN`.
+
+All secrets in `.env` are 1Password references (Employee vault, `palisaderesearchinc` account). When creating new secrets, save them to 1Password Employee vault and reference via `op://Employee/...` — never store plaintext secrets in `.env`.
