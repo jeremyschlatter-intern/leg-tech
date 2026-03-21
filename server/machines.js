@@ -10,7 +10,7 @@
 const FLY_API = 'https://api.machines.dev/v1';
 const FLY_API_TOKEN = process.env.FLY_API_TOKEN;
 const FLY_APP_NAME = process.env.FLY_APP_NAME || 'leg-tech-vms';
-const VM_IMAGE = process.env.VM_IMAGE || 'registry.fly.io/leg-tech-vms:latest';
+const VM_IMAGE = process.env.VM_IMAGE || 'registry.fly.io/leg-tech-vms:deployment-01KM72D32YBZ2NJYDH439M7C7P';
 
 // Secrets to inject into each VM (read from server env)
 const VM_SECRETS = {
@@ -62,22 +62,28 @@ export async function createMachine({ repoUrl, projectTitle, user }) {
     },
   });
 
+  // Wait for machine to reach started state
+  await flyApi('GET', `/machines/${machine.id}/wait?state=started&timeout=60`);
+
   return {
     machineId: machine.id,
     // fly_instance_id query param routes through Fly's proxy to the specific machine
     wsUrl: `wss://${FLY_APP_NAME}.fly.dev/ws?fly_instance_id=${machine.id}`,
-    status: machine.state,
+    status: 'started',
   };
 }
 
 export async function destroyMachine(machineId) {
-  // Stop first, then destroy
   try {
     await flyApi('POST', `/machines/${machineId}/stop`, {});
   } catch {
-    // May already be stopped
+    // May already be stopped or destroyed
   }
-  await flyApi('DELETE', `/machines/${machineId}`, { force: true });
+  try {
+    await flyApi('DELETE', `/machines/${machineId}?force=true`);
+  } catch {
+    // May already be destroyed (auto_destroy)
+  }
 }
 
 export async function getMachineStatus(machineId) {

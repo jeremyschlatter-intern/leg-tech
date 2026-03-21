@@ -319,6 +319,28 @@
       await term.open(terminalContainer);
       fitAddon.fit();
 
+      // Intercept key combos before ghostty-web to fix terminal input issues
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Tab') {
+          e.preventDefault();
+          if (e.shiftKey && ws && ws.readyState === WebSocket.OPEN) ws.send('\x1b[Z');
+        }
+        if (e.key === 'Enter' && e.shiftKey) {
+          e.preventDefault();
+          e.stopPropagation();
+          if (ws && ws.readyState === WebSocket.OPEN) ws.send('\n');
+        }
+        if (e.metaKey && e.key !== 'Meta') {
+          e.stopPropagation();
+          if (e.key === 'v') {
+            e.preventDefault();
+            navigator.clipboard.readText().then((text) => {
+              if (text && ws && ws.readyState === WebSocket.OPEN) ws.send(text);
+            });
+          }
+        }
+      }, true);
+
       window.addEventListener('resize', () => fitAddon.fit());
 
       term.onResize(size => {
@@ -336,9 +358,9 @@
       connectWebSocket(wsUrl);
     }
 
-    function connectWebSocket(wsUrl) {
+    function connectWebSocket(wsUrl, retries = 0) {
       statusDot.className = 'status-dot connecting';
-      statusText.textContent = 'Connecting…';
+      statusText.textContent = retries > 0 ? `Waiting for VM… (${retries})` : 'Connecting…';
 
       const sep = wsUrl.includes('?') ? '&' : '?';
       ws = new WebSocket(`${wsUrl}${sep}cols=${term.cols}&rows=${term.rows}`);
@@ -355,6 +377,10 @@
       ws.onclose = () => {
         statusDot.className = 'status-dot';
         statusText.textContent = 'Disconnected';
+        // Retry if we haven't connected yet (VM still booting)
+        if (retries < 30) {
+          setTimeout(() => connectWebSocket(wsUrl, retries + 1), 2000);
+        }
       };
     }
 

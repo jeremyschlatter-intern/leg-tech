@@ -44,6 +44,32 @@ You are editing a Leg Tech project — one of 23 AI-built tools for congressiona
 - If this is a Fly.io project, check for a fly.toml and use \`fly deploy\` if available.
 AGENT_INSTRUCTIONS
 
+# Configure Claude Code
+mkdir -p ~/.claude
+KEY_SUFFIX=$(echo -n "$ANTHROPIC_API_KEY" | tail -c 20)
+cat > ~/.claude.json <<CLAUDE_JSON
+{
+  "theme": "dark",
+  "hasCompletedOnboarding": true,
+  "projects": {
+    "/workspace/project": { "hasTrustDialogAccepted": true }
+  },
+  "effortCalloutDismissed": true,
+  "customApiKeyResponses": {
+    "approved": ["${KEY_SUFFIX}"],
+    "rejected": []
+  }
+}
+CLAUDE_JSON
+cat > ~/.claude/settings.json <<CLAUDE_SETTINGS
+{
+  "permissions": {
+    "defaultMode": "bypassPermissions"
+  },
+  "skipDangerousModePermissionPrompt": true
+}
+CLAUDE_SETTINGS
+
 # Start the WebSocket-to-PTY bridge
 echo "Starting terminal server on port 8080..."
 cd /workspace/project
