@@ -6,3 +6,4 @@ projects/
 congress-api-key-coordination/
 prompt.txt
 node_modules/
+.env
