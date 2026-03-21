@@ -25,8 +25,21 @@ RUN useradd -m -s /bin/bash coder \
 # Install Claude Code as coder
 USER coder
 RUN curl -fsSL https://claude.ai/install.sh | bash
-ENV PATH="/home/coder/.local/bin:$PATH"
 USER root
+
+# Pre-clone all project repos at build time (parallel)
+RUN cd /workspace && \
+    for repo in \
+      unified-hearing-markup-data youtube-video-dashboard gao-hearing-connector \
+      floor-schedule committee-transcripts witness-database \
+      appropriations-notices-tracker submit-appropriations-documentation appropriations-tracker \
+      crs-reports-to-html gao-reports-reader crs-reports-to-wikipedia \
+      house-disbursements-data bills-to-committee bill-delay-tracker \
+      congressional-job-tracker govtrack-newsletter-generator resolution-alerts \
+      congressional-rfps house-committee-spending committee-funding-tracker \
+      appropriations-explorer cbj-approps-alignment leg-tech-editor-test-app; \
+    do git clone "https://github.com/jeremyschlatter-intern/${repo}.git" "/workspace/${repo}" & done && wait \
+    && chown -R coder:coder /workspace
 
 # WebSocket-to-PTY bridge (runs as root, spawns shell as coder)
 COPY package.json /opt/package.json

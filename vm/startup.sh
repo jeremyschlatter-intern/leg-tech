@@ -3,42 +3,11 @@ set -e
 
 echo "=== Leg Tech Coding VM ==="
 
-# All project repos in the jeremyschlatter-intern org
-REPOS=(
-  unified-hearing-markup-data
-  youtube-video-dashboard
-  gao-hearing-connector
-  floor-schedule
-  committee-transcripts
-  witness-database
-  appropriations-notices-tracker
-  submit-appropriations-documentation
-  appropriations-tracker
-  crs-reports-to-html
-  gao-reports-reader
-  crs-reports-to-wikipedia
-  house-disbursements-data
-  bills-to-committee
-  bill-delay-tracker
-  congressional-job-tracker
-  govtrack-newsletter-generator
-  resolution-alerts
-  congressional-rfps
-  house-committee-spending
-  committee-funding-tracker
-  appropriations-explorer
-  cbj-approps-alignment
-  leg-tech-editor-test-app
-)
-
-# Clone all repos in parallel
-echo "Cloning all project repos..."
-for repo in "${REPOS[@]}"; do
-  git clone "https://github.com/jeremyschlatter-intern/${repo}.git" "/workspace/${repo}" 2>&1 &
+# Pull latest for all repos in background (non-blocking)
+for dir in /workspace/*/; do
+  (cd "$dir" && git pull --ff-only 2>/dev/null) &
 done
-wait
-chown -R coder:coder /workspace
-echo "All repos cloned."
+# Don't wait — let pulls finish in background while user works
 
 # Configure Claude Code for the coder user
 CODER_HOME="/home/coder"
@@ -47,8 +16,8 @@ KEY_SUFFIX=$(echo -n "$ANTHROPIC_API_KEY" | tail -c 20)
 
 # Build trust entries for all project dirs
 TRUST_ENTRIES=""
-for repo in "${REPOS[@]}"; do
-  TRUST_ENTRIES="${TRUST_ENTRIES}    \"/workspace/${repo}\": { \"hasTrustDialogAccepted\": true },
+for dir in /workspace/*/; do
+  TRUST_ENTRIES="${TRUST_ENTRIES}    \"${dir%/}\": { \"hasTrustDialogAccepted\": true },
 "
 done
 
@@ -78,7 +47,7 @@ CLAUDE_SETTINGS
 
 chown -R coder:coder "${CODER_HOME}/.claude" "${CODER_HOME}/.claude.json"
 
-# Make ANTHROPIC_API_KEY available to coder's shell
+# Make ANTHROPIC_API_KEY and PATH available to coder's shell
 echo "export ANTHROPIC_API_KEY='${ANTHROPIC_API_KEY}'" >> "${CODER_HOME}/.bashrc"
 echo 'export PATH="$HOME/.local/bin:$PATH"' >> "${CODER_HOME}/.bashrc"
 
