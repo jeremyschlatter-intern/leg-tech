@@ -1,7 +1,8 @@
 projects/
 *.log
-*.sh
-*.py
+/*.sh
+/*.py
 *.swp
 congress-api-key-coordination/
 prompt.txt
+node_modules/

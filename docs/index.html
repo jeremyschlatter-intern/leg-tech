@@ -692,7 +692,8 @@
           ? `<p class="wiki-link"><a href="${WIKI_BASE}${p.wikiAnchor}" target="_blank">View on Leg Tech wiki \u2192</a></p>`
           : '';
 
-        let links = `<a href="${p.siteUrl}" class="action-primary" target="_blank">View Tool \u2197</a>`;
+        const slug = p.repoUrl.split('/').pop();
+        let links = `<a href="/${slug}" class="action-primary">View Tool \u2197</a>`;
         if (p.reportUrl) links += `<a href="${p.reportUrl}" class="action-secondary" target="_blank">Report</a>`;
         if (p.repoUrl) links += `<a href="${p.repoUrl}" class="action-secondary" target="_blank">Source</a>`;
         links += `<button class="action-toggle" onclick="toggleSpec(${i}, this)">Original Spec \u25be</button>`;

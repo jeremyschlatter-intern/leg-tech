@@ -1,0 +1,9 @@
+{
+  "name": "leg-tech-vm",
+  "version": "1.0.0",
+  "type": "module",
+  "dependencies": {
+    "node-pty": "^1.0.0",
+    "ws": "^8.18.0"
+  }
+}

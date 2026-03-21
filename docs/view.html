@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Leg Tech</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --sans: 'Figtree', system-ui, sans-serif;
+      --navy: #1a2744;
+      --blue: #2c5282;
+      --accent: #b8860b;
+      --text-3: #8a847c;
+      --terminal-bg: #1e1e1e;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { height: 100%; overflow: hidden; }
+    body { font-family: var(--sans); display: flex; flex-direction: column; }
+
+    /* Top bar */
+    .viewer-bar {
+      height: 40px;
+      min-height: 40px;
+      background: var(--navy);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 1rem;
+      gap: 1rem;
+      z-index: 10;
+    }
+    .viewer-bar a {
+      color: rgba(255,255,255,0.6);
+      text-decoration: none;
+      font-size: 0.78rem;
+      font-weight: 500;
+      transition: color 0.15s;
+      white-space: nowrap;
+    }
+    .viewer-bar a:hover { color: #fff; }
+    .viewer-title {
+      color: #fff;
+      font-size: 0.82rem;
+      font-weight: 500;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .viewer-links {
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+      flex-shrink: 0;
+    }
+
+    /* Main content area */
+    .content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .viewer-frame {
+      width: 100%;
+      flex: 1;
+      border: none;
+      min-height: 0;
+    }
+
+    /* Terminal panel */
+    .terminal-panel {
+      display: none;
+      flex-direction: column;
+      background: var(--terminal-bg);
+      border-top: 2px solid #333;
+      overflow: hidden;
+    }
+    .terminal-panel.open {
+      display: flex;
+    }
+    .terminal-titlebar {
+      height: 32px;
+      min-height: 32px;
+      background: #2d2d2d;
+      display: flex;
+      align-items: center;
+      padding: 0 12px;
+      gap: 10px;
+      border-bottom: 1px solid #1a1a1a;
+      cursor: ns-resize;
+    }
+    .terminal-titlebar-title {
+      color: #ccc;
+      font-size: 0.75rem;
+      font-weight: 500;
+      flex: 1;
+    }
+    .terminal-status {
+      font-size: 0.68rem;
+      color: #888;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .status-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #666;
+    }
+    .status-dot.connected { background: #27c93f; }
+    .status-dot.connecting { background: #ffbd2e; animation: pulse 1s infinite; }
+    @keyframes pulse { 50% { opacity: 0.4; } }
+    .terminal-close {
+      background: none;
+      border: none;
+      color: #888;
+      font-size: 1.1rem;
+      cursor: pointer;
+      padding: 0 4px;
+      line-height: 1;
+    }
+    .terminal-close:hover { color: #fff; }
+    #terminal-container {
+      flex: 1;
+      padding: 8px;
+      min-height: 0;
+      overflow: hidden;
+    }
+
+    /* Floating edit button */
+    .edit-btn {
+      position: fixed;
+      bottom: 1.5rem;
+      right: 1.5rem;
+      background: var(--blue);
+      color: #fff;
+      border: none;
+      padding: 0.65rem 1.25rem;
+      border-radius: 8px;
+      font-family: var(--sans);
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.25);
+      transition: all 0.2s;
+      display: none;
+      z-index: 1000;
+    }
+    .edit-btn:hover {
+      background: var(--navy);
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+    }
+    .edit-btn.visible { display: flex; align-items: center; gap: 0.5rem; }
+    .edit-btn svg { width: 16px; height: 16px; }
+
+    /* Auth controls */
+    .auth-area {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    .auth-btn {
+      background: none;
+      border: 1px solid rgba(255,255,255,0.25);
+      color: rgba(255,255,255,0.7);
+      font-family: var(--sans);
+      font-size: 0.72rem;
+      font-weight: 500;
+      padding: 0.2rem 0.6rem;
+      border-radius: 3px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .auth-btn:hover {
+      border-color: rgba(255,255,255,0.5);
+      color: #fff;
+    }
+    .user-name {
+      font-size: 0.72rem;
+      color: rgba(255,255,255,0.5);
+    }
+  </style>
+</head>
+<body>
+  <div class="viewer-bar">
+    <a href="/">&larr; All Projects</a>
+    <span class="viewer-title" id="viewer-title"></span>
+    <div class="viewer-links">
+      <a id="link-source" href="#" target="_blank">Source</a>
+      <a id="link-report" href="#" target="_blank">Report</a>
+      <a id="link-direct" href="#" target="_blank">Direct Link &#8599;</a>
+      <div class="auth-area" id="auth-area"></div>
+    </div>
+  </div>
+
+  <div class="content">
+    <iframe class="viewer-frame" id="app-frame" sandbox="allow-scripts allow-same-origin allow-forms allow-popups"></iframe>
+
+    <div class="terminal-panel" id="terminal-panel">
+      <div class="terminal-titlebar" id="terminal-titlebar">
+        <span class="terminal-titlebar-title">Claude Code</span>
+        <span class="terminal-status">
+          <span class="status-dot" id="status-dot"></span>
+          <span id="status-text">Connecting…</span>
+        </span>
+        <button class="terminal-close" id="terminal-close" title="Close terminal">&times;</button>
+      </div>
+      <div id="terminal-container"></div>
+    </div>
+  </div>
+
+  <button class="edit-btn" id="edit-btn">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+      <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+    </svg>
+    Edit with Claude Code
+  </button>
+
+  <script type="module">
+    import { Terminal, FitAddon } from './ghostty-web/ghostty-web.js';
+    import { projects, slugFor, findBySlug } from './projects.js';
+
+    // Look up project from URL path
+    const slug = window.location.pathname.slice(1);
+    const project = findBySlug(slug);
+    if (!project) {
+      window.location.href = '/';
+      throw new Error('Unknown project');
+    }
+
+    document.title = `Leg Tech — ${project.title}`;
+    document.getElementById('viewer-title').textContent = project.title;
+    document.getElementById('app-frame').src = project.siteUrl;
+    document.getElementById('link-direct').href = project.siteUrl;
+    if (project.repoUrl) {
+      document.getElementById('link-source').href = project.repoUrl;
+    } else {
+      document.getElementById('link-source').style.display = 'none';
+    }
+    if (project.reportUrl) {
+      document.getElementById('link-report').href = project.reportUrl;
+    } else {
+      document.getElementById('link-report').style.display = 'none';
+    }
+
+    // --- Auth (same origin now) ---
+    let currentUser = null;
+
+    async function checkAuth() {
+      try {
+        const resp = await fetch('/api/auth/me');
+        const data = await resp.json();
+        if (data.authenticated) {
+          currentUser = data;
+          document.getElementById('edit-btn').classList.add('visible');
+          document.getElementById('auth-area').innerHTML = `
+            <span class="user-name">${data.name}</span>
+            <button class="auth-btn" id="logout-btn">Sign out</button>
+          `;
+          document.getElementById('logout-btn').addEventListener('click', logout);
+        } else {
+          currentUser = null;
+          document.getElementById('edit-btn').classList.remove('visible');
+          document.getElementById('auth-area').innerHTML = `
+            <button class="auth-btn" id="login-btn">Sign in</button>
+          `;
+          document.getElementById('login-btn').addEventListener('click', login);
+        }
+      } catch {
+        document.getElementById('auth-area').innerHTML = '';
+      }
+    }
+
+    function login() {
+      // Pass current URL so OAuth redirects back here
+      window.location.href = `/api/auth/login?return=${encodeURIComponent(window.location.pathname)}`;
+    }
+
+    async function logout() {
+      await fetch('/api/auth/logout', { method: 'POST' });
+      checkAuth();
+    }
+
+    // --- Terminal ---
+    let term = null;
+    let fitAddon = null;
+    let ws = null;
+    let currentMachineId = null;
+    let terminalHeight = 350;
+
+    const terminalPanel = document.getElementById('terminal-panel');
+    const terminalContainer = document.getElementById('terminal-container');
+    const statusDot = document.getElementById('status-dot');
+    const statusText = document.getElementById('status-text');
+
+    async function initTerminal(wsUrl) {
+      term = new Terminal({
+        cursorBlink: true,
+        fontSize: 14,
+        fontFamily: 'Monaco, Menlo, "Courier New", monospace',
+        theme: { background: '#1e1e1e', foreground: '#d4d4d4' },
+        scrollback: 10000,
+      });
+
+      fitAddon = new FitAddon();
+      term.loadAddon(fitAddon);
+
+      terminalPanel.classList.add('open');
+      terminalPanel.style.height = terminalHeight + 'px';
+      document.getElementById('edit-btn').classList.remove('visible');
+
+      await term.open(terminalContainer);
+      fitAddon.fit();
+
+      window.addEventListener('resize', () => fitAddon.fit());
+
+      term.onResize(size => {
+        if (ws && ws.readyState === WebSocket.OPEN) {
+          ws.send(JSON.stringify({ type: 'resize', cols: size.cols, rows: size.rows }));
+        }
+      });
+
+      term.onData(data => {
+        if (ws && ws.readyState === WebSocket.OPEN) {
+          ws.send(data);
+        }
+      });
+
+      connectWebSocket(wsUrl);
+    }
+
+    function connectWebSocket(wsUrl) {
+      statusDot.className = 'status-dot connecting';
+      statusText.textContent = 'Connecting…';
+
+      const sep = wsUrl.includes('?') ? '&' : '?';
+      ws = new WebSocket(`${wsUrl}${sep}cols=${term.cols}&rows=${term.rows}`);
+
+      ws.onopen = () => {
+        statusDot.className = 'status-dot connected';
+        statusText.textContent = 'Connected';
+      };
+      ws.onmessage = e => term.write(e.data);
+      ws.onerror = () => {
+        statusDot.className = 'status-dot';
+        statusText.textContent = 'Error';
+      };
+      ws.onclose = () => {
+        statusDot.className = 'status-dot';
+        statusText.textContent = 'Disconnected';
+      };
+    }
+
+    function closeTerminal() {
+      if (ws) { ws.close(); ws = null; }
+      if (term) { term.dispose(); term = null; }
+      terminalPanel.classList.remove('open');
+      terminalPanel.style.height = '';
+      if (currentUser) document.getElementById('edit-btn').classList.add('visible');
+      if (currentMachineId) {
+        fetch(`/api/machines/${currentMachineId}`, { method: 'DELETE' });
+        currentMachineId = null;
+      }
+    }
+
+    document.getElementById('terminal-close').addEventListener('click', closeTerminal);
+
+    // --- Drag to resize ---
+    {
+      const titlebar = document.getElementById('terminal-titlebar');
+      let dragging = false, startY, startHeight;
+      titlebar.addEventListener('mousedown', e => {
+        dragging = true;
+        startY = e.clientY;
+        startHeight = terminalPanel.offsetHeight;
+        document.body.style.cursor = 'ns-resize';
+        document.body.style.userSelect = 'none';
+        e.preventDefault();
+      });
+      document.addEventListener('mousemove', e => {
+        if (!dragging) return;
+        const newHeight = Math.max(150, Math.min(window.innerHeight - 100, startHeight + (startY - e.clientY)));
+        terminalPanel.style.height = newHeight + 'px';
+        terminalHeight = newHeight;
+        if (fitAddon) fitAddon.fit();
+      });
+      document.addEventListener('mouseup', () => {
+        if (!dragging) return;
+        dragging = false;
+        document.body.style.cursor = '';
+        document.body.style.userSelect = '';
+      });
+    }
+
+    // --- Edit button ---
+    document.getElementById('edit-btn').addEventListener('click', async () => {
+      const btn = document.getElementById('edit-btn');
+      btn.disabled = true;
+      btn.textContent = 'Starting VM…';
+
+      try {
+        const resp = await fetch('/api/machines', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ repoUrl: project.repoUrl, projectTitle: project.title }),
+        });
+        const machine = await resp.json();
+        if (!resp.ok) throw new Error(machine.error || 'Failed to create VM');
+
+        currentMachineId = machine.machineId;
+        btn.textContent = 'VM created, connecting terminal…';
+        await initTerminal(machine.wsUrl);
+      } catch (err) {
+        btn.disabled = false;
+        btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> Edit with Claude Code`;
+        console.error('Failed to start editor:', err);
+      }
+    });
+
+    checkAuth();
+  </script>
+</body>
+</html>
