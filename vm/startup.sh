@@ -37,10 +37,12 @@ for repo in "${REPOS[@]}"; do
   git clone "https://github.com/jeremyschlatter-intern/${repo}.git" "/workspace/${repo}" 2>&1 &
 done
 wait
+chown -R coder:coder /workspace
 echo "All repos cloned."
 
-# Configure Claude Code
-mkdir -p ~/.claude
+# Configure Claude Code for the coder user
+CODER_HOME="/home/coder"
+mkdir -p "${CODER_HOME}/.claude"
 KEY_SUFFIX=$(echo -n "$ANTHROPIC_API_KEY" | tail -c 20)
 
 # Build trust entries for all project dirs
@@ -50,7 +52,7 @@ for repo in "${REPOS[@]}"; do
 "
 done
 
-cat > ~/.claude.json <<CLAUDE_JSON
+cat > "${CODER_HOME}/.claude.json" <<CLAUDE_JSON
 {
   "theme": "dark",
   "hasCompletedOnboarding": true,
@@ -64,7 +66,8 @@ ${TRUST_ENTRIES}    "/workspace": { "hasTrustDialogAccepted": true }
   }
 }
 CLAUDE_JSON
-cat > ~/.claude/settings.json <<CLAUDE_SETTINGS
+
+cat > "${CODER_HOME}/.claude/settings.json" <<CLAUDE_SETTINGS
 {
   "permissions": {
     "defaultMode": "bypassPermissions"
@@ -73,9 +76,13 @@ cat > ~/.claude/settings.json <<CLAUDE_SETTINGS
 }
 CLAUDE_SETTINGS
 
+chown -R coder:coder "${CODER_HOME}/.claude" "${CODER_HOME}/.claude.json"
+
+# Make ANTHROPIC_API_KEY available to coder's shell
+echo "export ANTHROPIC_API_KEY='${ANTHROPIC_API_KEY}'" >> "${CODER_HOME}/.bashrc"
+echo 'export PATH="$HOME/.local/bin:$PATH"' >> "${CODER_HOME}/.bashrc"
+
 # Start the WebSocket-to-PTY bridge
-# Default to first repo if PROJECT_SLUG not set
-WORKDIR="/workspace/${PROJECT_SLUG:-${REPOS[0]}}"
-echo "Starting terminal server on port 8080 in ${WORKDIR}..."
-cd "$WORKDIR"
+echo "Starting terminal server on port 8080..."
+cd /workspace
 exec node /opt/ws-pty-bridge.js

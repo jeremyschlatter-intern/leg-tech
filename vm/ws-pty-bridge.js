@@ -25,7 +25,9 @@ wss.on('connection', (ws, req) => {
   const cols = parseInt(params.get('cols')) || 80;
   const rows = parseInt(params.get('rows')) || 24;
 
-  const pty = spawn('/bin/bash', ['-l'], {
+  // Spawn shell as 'coder' user (Claude Code refuses to run as root)
+  const user = process.env.SHELL_USER || 'coder';
+  const pty = spawn('su', ['-', user, '-c', 'exec bash -l'], {
     name: 'xterm-256color',
     cols,
     rows,
