@@ -22,6 +22,9 @@ const ALLOWED_DOMAIN = process.env.ALLOWED_DOMAIN || 'palisaderesearch.org';
 const { projects, slugFor } = await import(join(DOCS_DIR, 'projects.js'));
 const projectSlugs = new Set(projects.map(slugFor));
 
+// Test-only project slugs (routable but not shown on index page)
+const testSlugs = new Set(projects.filter(p => p.testOnly).map(slugFor));
+
 // In-memory session store
 const sessions = new Map();
 
@@ -252,6 +255,15 @@ const server = createServer(async (req, res) => {
   // Project slug → serve view.html
   const slug = path.slice(1); // strip leading /
   if (slug && !slug.includes('/') && projectSlugs.has(slug)) {
+    // Test-only projects are only accessible on localhost
+    if (testSlugs.has(slug)) {
+      const host = req.headers.host || '';
+      if (!host.startsWith('localhost')) {
+        res.writeHead(404);
+        res.end('Not found');
+        return;
+      }
+    }
     return serveFile(res, join(DOCS_DIR, 'view.html'));
   }
 
