@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head><title>Box Drawing Test</title></head>
+<body style="background:#1e1e1e; margin:0; padding:20px;">
+<div id="term" style="width:800px; height:400px;"></div>
+<script type="module">
+import { init, Terminal, FitAddon } from './ghostty-web/ghostty-web.js';
+await init();
+const term = new Terminal({
+  fontSize: 14,
+  fontFamily: 'Monaco, Menlo, "Courier New", monospace',
+  theme: { background: '#1e1e1e', foreground: '#d4d4d4' },
+});
+const fit = new FitAddon();
+term.loadAddon(fit);
+await term.open(document.getElementById('term'));
+fit.fit();
+
+// Box drawing test pattern
+term.write('Box Drawing Test:\r\n\r\n');
+term.write('╭──────────────╮\r\n');
+term.write('│  Hello World │\r\n');
+term.write('├──────────────┤\r\n');
+term.write('│  Line 2      │\r\n');
+term.write('╰──────────────╯\r\n');
+term.write('\r\n');
+term.write('Thin lines: ─────────────\r\n');
+term.write('Vertical:   │ │ │ │ │\r\n');
+term.write('Corners: ┌┐└┘ ╭╮╰╯\r\n');
+term.write('Cross: ┼ T: ┬┴├┤\r\n');
+term.write('\r\n');
+term.write('Quadrant blocks: ▘▝▖▗ ▛▜▙▟ ▚▞\r\n');
+term.write('Full/half: █▌▐ ▀▄\r\n');
+</script>
+</body>
+</html>
