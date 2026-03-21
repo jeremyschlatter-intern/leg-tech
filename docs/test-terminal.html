@@ -80,7 +80,7 @@
 
     const WS_URL = 'ws://localhost:8080/ws';
 
-    let term = null, fitAddon = null, ws = null;
+    let term = null, fitAddon = null, currentWs = null;
     let terminalHeight = 350;
     const panel = document.getElementById('terminal-panel');
     const container = document.getElementById('terminal-container');
@@ -116,11 +116,11 @@
       document.addEventListener('keydown', handleKeys, true);
       window.addEventListener('resize', () => fitAddon.fit());
       term.onResize(size => {
-        if (ws?.readyState === WebSocket.OPEN)
-          ws.send(JSON.stringify({ type: 'resize', cols: size.cols, rows: size.rows }));
+        if (currentWs?.readyState === WebSocket.OPEN)
+          currentWs.send(JSON.stringify({ type: 'resize', cols: size.cols, rows: size.rows }));
       });
       term.onData(data => {
-        if (ws?.readyState === WebSocket.OPEN) ws.send(data);
+        if (currentWs?.readyState === WebSocket.OPEN) currentWs.send(data);
       });
 
       connect();
@@ -131,13 +131,16 @@
       text.textContent = retries > 0 ? `Reconnecting (${retries})…` : 'Connecting…';
 
       const sep = WS_URL.includes('?') ? '&' : '?';
-      ws = new WebSocket(`${WS_URL}${sep}cols=${term.cols}&rows=${term.rows}`);
+      const me = new WebSocket(`${WS_URL}${sep}cols=${term.cols}&rows=${term.rows}`);
+      currentWs = me;
 
-      ws.onopen = () => {
+      me.onopen = () => {
+        if (me !== currentWs) { me.close(); return; }
         dot.className = 'status-dot connected';
         text.textContent = 'Connected';
       };
-      ws.onmessage = e => {
+      me.onmessage = e => {
+        if (me !== currentWs) { me.close(); return; }
         const d = e.data;
         if (d[0] === '0') {
           term.write(d.slice(1));
@@ -150,8 +153,12 @@
           }
         }
       };
-      ws.onerror = () => { dot.className = 'status-dot'; text.textContent = 'Error'; };
-      ws.onclose = () => {
+      me.onerror = () => {
+        if (me !== currentWs) return;
+        dot.className = 'status-dot'; text.textContent = 'Error';
+      };
+      me.onclose = () => {
+        if (me !== currentWs) return; // stale, don't retry
         dot.className = 'status-dot';
         text.textContent = 'Disconnected';
         if (retries < 30) setTimeout(() => connect(retries + 1), 2000);
@@ -159,7 +166,7 @@
     }
 
     function closeTerminal() {
-      if (ws) { ws.close(); ws = null; }
+      if (currentWs) { currentWs.close(); currentWs = null; }
       if (term) { term.dispose(); term = null; }
       panel.classList.remove('open');
       panel.style.height = '';
@@ -170,17 +177,17 @@
     function handleKeys(e) {
       if (e.key === 'Tab') {
         e.preventDefault();
-        if (e.shiftKey && ws?.readyState === WebSocket.OPEN) ws.send('\x1b[Z');
+        if (e.shiftKey && currentWs?.readyState === WebSocket.OPEN) currentWs.send('\x1b[Z');
       }
       if (e.key === 'Enter' && e.shiftKey) {
         e.preventDefault(); e.stopPropagation();
-        if (ws?.readyState === WebSocket.OPEN) ws.send('\n');
+        if (currentWs?.readyState === WebSocket.OPEN) currentWs.send('\n');
       }
       if (e.metaKey && e.key !== 'Meta') {
         e.stopPropagation();
         if (e.key === 'v') {
           e.preventDefault();
-          navigator.clipboard.readText().then(t => { if (t && ws?.readyState === WebSocket.OPEN) ws.send(t); });
+          navigator.clipboard.readText().then(t => { if (t && currentWs?.readyState === WebSocket.OPEN) currentWs.send(t); });
         }
       }
     }
