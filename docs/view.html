@@ -8,6 +8,16 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600&display=swap" rel="stylesheet">
   <style>
+    @font-face {
+      font-family: "JetBrainsMono Nerd Font";
+      src: url("https://cdn.jsdelivr.net/gh/ryanoasis/nerd-fonts@latest/patched-fonts/JetBrainsMono/Ligatures/Regular/JetBrainsMonoNerdFont-Regular.ttf") format("truetype");
+      font-weight: normal; font-style: normal;
+    }
+    @font-face {
+      font-family: "JetBrainsMono Nerd Font";
+      src: url("https://cdn.jsdelivr.net/gh/ryanoasis/nerd-fonts@latest/patched-fonts/JetBrainsMono/Ligatures/Bold/JetBrainsMonoNerdFont-Bold.ttf") format("truetype");
+      font-weight: bold; font-style: normal;
+    }
     :root {
       --sans: 'Figtree', system-ui, sans-serif;
       --navy: #1a2744;
@@ -305,7 +315,7 @@
       term = new Terminal({
         cursorBlink: true,
         fontSize: 14,
-        fontFamily: 'Monaco, Menlo, "Courier New", monospace',
+        fontFamily: '"JetBrainsMono Nerd Font", Monaco, Menlo, "Courier New", monospace',
         theme: { background: '#1e1e1e', foreground: '#d4d4d4' },
         scrollback: 10000,
       });

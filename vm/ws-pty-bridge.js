@@ -2,7 +2,8 @@
 // Spawns a shell and bridges it to a WebSocket connection.
 
 import { createServer } from 'http';
-import { spawn } from 'node-pty';
+import pty from '@lydell/node-pty';
+const { spawn } = pty;
 import { WebSocketServer } from 'ws';
 
 const PORT = process.env.PORT || 8080;
@@ -25,9 +26,11 @@ wss.on('connection', (ws, req) => {
   const cols = parseInt(params.get('cols')) || 80;
   const rows = parseInt(params.get('rows')) || 24;
 
-  // Spawn shell as 'coder' user (Claude Code refuses to run as root)
-  const user = process.env.SHELL_USER || 'coder';
-  const pty = spawn('su', ['-', user, '-c', 'exec bash -l'], {
+  // Spawn shell — use su for Docker (coder user), direct shell locally
+  const user = process.env.SHELL_USER;
+  const shell = process.env.SHELL || '/bin/sh';
+  const cmd = user ? ['su', ['-', user, '-c', 'exec bash -l']] : [shell, ['-l']];
+  const pty = spawn(cmd[0], cmd[1], {
     name: 'xterm-256color',
     cols,
     rows,
