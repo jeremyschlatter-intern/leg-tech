@@ -51,6 +51,11 @@ chown -R coder:coder "${CODER_HOME}/.claude" "${CODER_HOME}/.claude.json"
 echo "export ANTHROPIC_API_KEY='${ANTHROPIC_API_KEY}'" >> "${CODER_HOME}/.bashrc"
 echo 'export PATH="$HOME/.local/bin:$PATH"' >> "${CODER_HOME}/.bashrc"
 
+# Warm up Claude Code (first run does init work)
+echo "Warming up Claude Code..."
+su - coder -c 'cd /workspace && ANTHROPIC_API_KEY="'"${ANTHROPIC_API_KEY}"'" PATH="$HOME/.local/bin:$PATH" claude --model haiku -p "reply with ok" --no-input' 2>&1 || true
+echo "Claude Code warm-up complete."
+
 # Start the WebSocket-to-PTY bridge
 echo "Starting terminal server on port 8080..."
 cd /workspace
