@@ -211,6 +211,16 @@ const server = createServer(async (req, res) => {
     const session = getSession(req);
     if (!session) return json(res, 401, { error: 'Not authenticated' });
 
+    // Singleton VM mode: use pre-started VM if SINGLETON_VM_ID is set
+    if (process.env.SINGLETON_VM_ID) {
+      const FLY_APP_NAME = process.env.FLY_APP_NAME || 'leg-tech-vms';
+      return json(res, 201, {
+        machineId: process.env.SINGLETON_VM_ID,
+        wsUrl: `wss://${FLY_APP_NAME}.fly.dev/ws?fly_instance_id=${process.env.SINGLETON_VM_ID}`,
+        status: 'started',
+      });
+    }
+
     const body = await readBody(req);
     const { repoUrl, projectTitle } = body;
     if (!repoUrl) return json(res, 400, { error: 'repoUrl is required' });

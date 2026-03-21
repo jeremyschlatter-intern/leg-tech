@@ -224,7 +224,7 @@
   </button>
 
   <script type="module">
-    import { Terminal, FitAddon } from './ghostty-web/ghostty-web.js';
+    import { init, Terminal, FitAddon } from './ghostty-web/ghostty-web.js';
     import { projects, slugFor, findBySlug } from './projects.js';
 
     // Look up project from URL path
@@ -301,6 +301,7 @@
     const statusText = document.getElementById('status-text');
 
     async function initTerminal(wsUrl) {
+      await init();
       term = new Terminal({
         cursorBlink: true,
         fontSize: 14,
@@ -368,6 +369,9 @@
       ws.onopen = () => {
         statusDot.className = 'status-dot connected';
         statusText.textContent = 'Connected';
+        // cd to the right project dir and pull latest
+        const repoSlug = project.repoUrl.split('/').pop();
+        ws.send(`cd /workspace/${repoSlug} && git pull --ff-only 2>/dev/null; clear\n`);
       };
       ws.onmessage = e => term.write(e.data);
       ws.onerror = () => {

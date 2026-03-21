@@ -2,57 +2,60 @@
 set -e
 
 echo "=== Leg Tech Coding VM ==="
-echo "Project: ${PROJECT_TITLE}"
-echo "Repo: ${REPO_URL}"
 
-# Clone the project repo
-if [ -n "$REPO_URL" ]; then
-    echo "Cloning ${REPO_URL}..."
-    git clone "$REPO_URL" /workspace/project
-    cd /workspace/project
+# All project repos in the jeremyschlatter-intern org
+REPOS=(
+  unified-hearing-markup-data
+  youtube-video-dashboard
+  gao-hearing-connector
+  floor-schedule
+  committee-transcripts
+  witness-database
+  appropriations-notices-tracker
+  submit-appropriations-documentation
+  appropriations-tracker
+  crs-reports-to-html
+  gao-reports-reader
+  crs-reports-to-wikipedia
+  house-disbursements-data
+  bills-to-committee
+  bill-delay-tracker
+  congressional-job-tracker
+  govtrack-newsletter-generator
+  resolution-alerts
+  congressional-rfps
+  house-committee-spending
+  committee-funding-tracker
+  appropriations-explorer
+  cbj-approps-alignment
+  leg-tech-editor-test-app
+)
 
-    # Install dependencies if applicable
-    if [ -f "package.json" ]; then
-        echo "Installing Node.js dependencies..."
-        npm install
-    fi
-    if [ -f "requirements.txt" ]; then
-        echo "Installing Python dependencies..."
-        pip3 install -r requirements.txt
-    fi
-fi
-
-# Write contextual CLAUDE.md for the agent
-cat > /workspace/project/CLAUDE.md <<AGENT_INSTRUCTIONS
-# Editing: ${PROJECT_TITLE}
-
-You are editing a Leg Tech project — one of 23 AI-built tools for congressional staff.
-
-## Context
-- This project was originally built autonomously by Claude Code.
-- A user is now editing it via a browser-based terminal.
-- The repo was cloned from: ${REPO_URL}
-
-## Pushing Changes
-- The repo has a GitHub remote configured.
-- Create a new branch for your changes: \`git checkout -b edit/\$(date +%Y%m%d-%H%M%S)\`
-- Commit and push when the user is happy with the changes.
-- If you need to create a PR, use \`gh pr create\`.
-
-## Deployment
-- If this is a GitHub Pages project, pushing to main will auto-deploy.
-- If this is a Fly.io project, check for a fly.toml and use \`fly deploy\` if available.
-AGENT_INSTRUCTIONS
+# Clone all repos in parallel
+echo "Cloning all project repos..."
+for repo in "${REPOS[@]}"; do
+  git clone "https://github.com/jeremyschlatter-intern/${repo}.git" "/workspace/${repo}" 2>&1 &
+done
+wait
+echo "All repos cloned."
 
 # Configure Claude Code
 mkdir -p ~/.claude
 KEY_SUFFIX=$(echo -n "$ANTHROPIC_API_KEY" | tail -c 20)
+
+# Build trust entries for all project dirs
+TRUST_ENTRIES=""
+for repo in "${REPOS[@]}"; do
+  TRUST_ENTRIES="${TRUST_ENTRIES}    \"/workspace/${repo}\": { \"hasTrustDialogAccepted\": true },
+"
+done
+
 cat > ~/.claude.json <<CLAUDE_JSON
 {
   "theme": "dark",
   "hasCompletedOnboarding": true,
   "projects": {
-    "/workspace/project": { "hasTrustDialogAccepted": true }
+${TRUST_ENTRIES}    "/workspace": { "hasTrustDialogAccepted": true }
   },
   "effortCalloutDismissed": true,
   "customApiKeyResponses": {
@@ -71,6 +74,8 @@ cat > ~/.claude/settings.json <<CLAUDE_SETTINGS
 CLAUDE_SETTINGS
 
 # Start the WebSocket-to-PTY bridge
-echo "Starting terminal server on port 8080..."
-cd /workspace/project
+# Default to first repo if PROJECT_SLUG not set
+WORKDIR="/workspace/${PROJECT_SLUG:-${REPOS[0]}}"
+echo "Starting terminal server on port 8080 in ${WORKDIR}..."
+cd "$WORKDIR"
 exec node /opt/ws-pty-bridge.js
