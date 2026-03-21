@@ -6,7 +6,7 @@ Index site for 23 AI-built congressional technology tools, created as a demo for
 
 - `docs/index.html` — The index page. Single self-contained HTML file (no build tools, no framework). Deployed via GitHub Pages at `jeremyschlatter-intern.github.io/leg-tech/`.
 - `docs/view.html` — App viewer page. Loads a tool in an iframe with nav bar, auth, floating edit button, and inline ghostty-web terminal.
-- `docs/ghostty-web/` — Vendored ghostty-web (coder/ghostty-web) ESM build + WASM. The JS bundle has the WASM embedded as base64.
+- `docs/ghostty-web/` — Vendored ghostty-web ESM build. The JS bundle has the WASM embedded as base64. Source: `jeremyschlatter/ghostty-web` (fork of `rcarmo/ghostty-web`). To rebuild: `cd ~/src/github.com/rcarmo/ghostty-web && , bun run build:lib && cp dist/ghostty-web.js <leg-tech>/docs/ghostty-web/`.
 - `server/` — Backend API for authentication and VM machine management.
 - `vm/` — Dockerfile, startup script, and WS-PTY bridge for coding VMs.
 - `Leg-Tech.md` — Extended project documentation/specs.
