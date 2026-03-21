@@ -41,7 +41,7 @@
     .status-dot.connected { background: #27c93f; }
     .status-dot.connecting { background: #ffbd2e; animation: pulse 1s infinite; }
     @keyframes pulse { 50% { opacity: 0.4; } }
-    .terminal-close { background: none; border: none; color: #888; font-size: 1.1rem; cursor: pointer; padding: 0 4px; }
+    .terminal-close { background: none; border: none; color: #888; font-size: 1.1rem; cursor: pointer; padding: 4px 8px; z-index: 10; position: relative; }
     .terminal-close:hover { color: #fff; }
     #terminal-container { flex: 1; padding: 8px; min-height: 0; overflow: hidden; }
 
@@ -63,6 +63,7 @@
     <div class="terminal-panel" id="terminal-panel">
       <div class="terminal-titlebar" id="terminal-titlebar">
         <span class="terminal-titlebar-title">Terminal</span>
+        <span id="viewers" style="font-size:0.65rem; color:#888; display:none;"></span>
         <span class="terminal-status">
           <span class="status-dot" id="status-dot"></span>
           <span id="status-text"></span>
@@ -88,7 +89,13 @@
     const btn = document.getElementById('edit-btn');
 
     btn.addEventListener('click', openTerminal);
-    document.getElementById('terminal-close').addEventListener('click', closeTerminal);
+    document.getElementById('terminal-close').addEventListener('mousedown', e => {
+      e.stopPropagation(); // Prevent drag handler from capturing this
+    });
+    document.getElementById('terminal-close').addEventListener('click', e => {
+      e.stopPropagation();
+      closeTerminal();
+    });
 
     async function openTerminal() {
       btn.classList.add('hidden');
@@ -130,7 +137,19 @@
         dot.className = 'status-dot connected';
         text.textContent = 'Connected';
       };
-      ws.onmessage = e => term.write(e.data);
+      ws.onmessage = e => {
+        const d = e.data;
+        if (d[0] === '0') {
+          term.write(d.slice(1));
+        } else if (d[0] === '1') {
+          const msg = JSON.parse(d.slice(1));
+          if (msg.type === 'clients') {
+            const el = document.getElementById('viewers');
+            if (msg.count > 1) { el.textContent = `${msg.count} viewers`; el.style.display = ''; }
+            else { el.style.display = 'none'; }
+          }
+        }
+      };
       ws.onerror = () => { dot.className = 'status-dot'; text.textContent = 'Error'; };
       ws.onclose = () => {
         dot.className = 'status-dot';

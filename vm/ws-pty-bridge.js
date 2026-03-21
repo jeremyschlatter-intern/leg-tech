@@ -35,7 +35,7 @@ const clients = new Map();
 term.onData(data => {
   buffer.push(data);
   for (const ws of clients.keys()) {
-    if (ws.readyState === ws.OPEN) ws.send(data);
+    if (ws.readyState === ws.OPEN) ws.send('0' + data);
   }
 });
 
@@ -43,6 +43,13 @@ term.onExit(() => {
   console.log('PTY exited');
   for (const ws of clients.keys()) ws.close();
 });
+
+function broadcastClientCount() {
+  const msg = '1' + JSON.stringify({ type: 'clients', count: clients.size });
+  for (const ws of clients.keys()) {
+    if (ws.readyState === ws.OPEN) ws.send(msg);
+  }
+}
 
 function resizeToSmallest() {
   if (clients.size === 0) return;
@@ -55,6 +62,7 @@ function resizeToSmallest() {
     ptyCols = minCols;
     ptyRows = minRows;
     term.resize(ptyCols, ptyRows);
+    console.log(`[pty-resize] ${ptyCols}x${ptyRows}`);
   }
 }
 
@@ -79,11 +87,13 @@ wss.on('connection', (ws, req) => {
 
   // Replay buffered output
   for (const chunk of buffer) {
-    ws.send(chunk);
+    ws.send('0' + chunk);
   }
 
   clients.set(ws, { cols, rows });
+  console.log(`[connect] +client (${cols}x${rows}) | ${clients.size} clients | pty=${ptyCols}x${ptyRows}`);
   resizeToSmallest();
+  broadcastClientCount();
 
   ws.on('message', msg => {
     const str = msg.toString();
@@ -91,6 +101,7 @@ wss.on('connection', (ws, req) => {
       const parsed = JSON.parse(str);
       if (parsed.type === 'resize') {
         clients.set(ws, { cols: parsed.cols, rows: parsed.rows });
+        console.log(`[resize] client->${parsed.cols}x${parsed.rows} | ${clients.size} clients | pty=${ptyCols}x${ptyRows}`);
         resizeToSmallest();
         return;
       }
@@ -100,7 +111,9 @@ wss.on('connection', (ws, req) => {
 
   ws.on('close', () => {
     clients.delete(ws);
+    console.log(`[close] -client | ${clients.size} clients | pty=${ptyCols}x${ptyRows}`);
     resizeToSmallest();
+    broadcastClientCount();
   });
 });
 
