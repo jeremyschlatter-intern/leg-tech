@@ -17,9 +17,9 @@ RUN curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg \
     && apt-get update && apt-get install -y gh \
     && rm -rf /var/lib/apt/lists/*
 
-# Install Fly CLI
-RUN curl -L https://fly.io/install.sh | sh
-ENV PATH="/root/.fly/bin:$PATH"
+# Install Fly CLI (to /usr/local so all users can access)
+RUN curl -L https://fly.io/install.sh | FLYCTL_INSTALL=/usr/local sh
+ENV PATH="/usr/local/bin:$PATH"
 
 # Create non-root user (Claude Code refuses to run as root)
 RUN useradd -m -s /bin/bash coder \

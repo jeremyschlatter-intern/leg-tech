@@ -49,7 +49,7 @@ chown -R coder:coder "${CODER_HOME}/.claude" "${CODER_HOME}/.claude.json"
 
 # Make env vars and PATH available to coder's shell
 echo "export ANTHROPIC_API_KEY='${ANTHROPIC_API_KEY}'" >> "${CODER_HOME}/.bashrc"
-echo 'export PATH="$HOME/.local/bin:/root/.fly/bin:$PATH"' >> "${CODER_HOME}/.bashrc"
+echo 'export PATH="$HOME/.local/bin:$PATH"' >> "${CODER_HOME}/.bashrc"
 if [ -n "$GITHUB_TOKEN" ]; then
   echo "export GITHUB_TOKEN='${GITHUB_TOKEN}'" >> "${CODER_HOME}/.bashrc"
   # Configure git to use the token for HTTPS push to jeremyschlatter-intern repos
