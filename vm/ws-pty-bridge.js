@@ -26,7 +26,7 @@ function getOrCreateSession(sessionId) {
     cols: DEFAULT_COLS,
     rows: DEFAULT_ROWS,
     cwd: process.cwd(),
-    env: { ...process.env, TERM: 'xterm-256color' },
+    env: { ...process.env, TERM: 'xterm-256color', ATUIN_NOBIND: '1' },
   });
 
   const session = {
