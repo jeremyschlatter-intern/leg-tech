@@ -238,8 +238,9 @@
     import { init, Terminal, FitAddon } from './ghostty-web/ghostty-web.js';
     import { projects, slugFor, findBySlug } from './projects.js';
 
-    // Local mode: skip auth, connect to localhost WS bridge
-    const LOCAL_MODE = window.location.hostname === 'localhost';
+    // Local WS mode: use localhost:8080 bridge instead of remote VM
+    // Set ?local=1 in URL to force local mode, otherwise uses /api/machines
+    const LOCAL_WS = new URLSearchParams(window.location.search).has('local');
 
     // Look up project from URL path
     const slug = window.location.pathname.slice(1);
@@ -268,13 +269,6 @@
     let currentUser = null;
 
     async function checkAuth() {
-      if (LOCAL_MODE) {
-        // Skip auth in local mode — always show edit button
-        currentUser = { name: 'Local' };
-        document.getElementById('edit-btn').classList.add('visible');
-        document.getElementById('auth-area').innerHTML = '';
-        return;
-      }
       try {
         const resp = await fetch('/api/auth/me');
         const data = await resp.json();
@@ -324,7 +318,7 @@
     const statusText = document.getElementById('status-text');
 
     function getWsUrl() {
-      if (LOCAL_MODE) return 'ws://localhost:8080/ws';
+      if (LOCAL_WS) return 'ws://localhost:8080/ws';
       // Remote mode: get from API (singleton or on-demand VM)
       return null; // set by edit button handler
     }
@@ -476,7 +470,7 @@
       btn.textContent = 'Starting…';
 
       try {
-        if (LOCAL_MODE) {
+        if (LOCAL_WS) {
           await openTerminal('ws://localhost:8080/ws');
         } else {
           const resp = await fetch('/api/machines', {

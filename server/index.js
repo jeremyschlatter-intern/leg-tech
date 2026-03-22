@@ -17,6 +17,7 @@ const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
 const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET;
 const ORIGIN = process.env.ORIGIN || `http://localhost:${PORT}`;
 const ALLOWED_DOMAIN = process.env.ALLOWED_DOMAIN || 'palisaderesearch.org';
+const DISABLE_AUTH = process.env.DISABLE_AUTH === '1';
 
 // Load project slugs for routing
 const { projects, slugFor } = await import(join(DOCS_DIR, 'projects.js'));
@@ -185,6 +186,7 @@ const server = createServer(async (req, res) => {
   }
 
   if (path === '/api/auth/me' && req.method === 'GET') {
+    if (DISABLE_AUTH) return json(res, 200, { authenticated: true, name: 'Demo', email: 'demo@example.com' });
     const session = getSession(req);
     if (!session) return json(res, 200, { authenticated: false });
     return json(res, 200, {
@@ -208,8 +210,10 @@ const server = createServer(async (req, res) => {
   // --- Machine routes ---
 
   if (path === '/api/machines' && req.method === 'POST') {
-    const session = getSession(req);
-    if (!session) return json(res, 401, { error: 'Not authenticated' });
+    if (!DISABLE_AUTH) {
+      const session = getSession(req);
+      if (!session) return json(res, 401, { error: 'Not authenticated' });
+    }
 
     // Singleton VM mode: use pre-started VM if SINGLETON_VM_ID is set
     if (process.env.SINGLETON_VM_ID) {
@@ -265,8 +269,8 @@ const server = createServer(async (req, res) => {
   // Project slug → serve view.html
   const slug = path.slice(1); // strip leading /
   if (slug && !slug.includes('/') && projectSlugs.has(slug)) {
-    // Test-only projects are only accessible on localhost
-    if (testSlugs.has(slug)) {
+    // Test-only projects are only accessible on localhost or when auth is disabled
+    if (testSlugs.has(slug) && !DISABLE_AUTH) {
       const host = req.headers.host || '';
       if (!host.startsWith('localhost')) {
         res.writeHead(404);
