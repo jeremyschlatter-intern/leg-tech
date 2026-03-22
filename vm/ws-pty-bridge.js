@@ -17,15 +17,19 @@ const shell = process.env.SHELL || '/bin/sh';
 // Map of sessionId -> { term, buffer, clients: Map<ws, {cols, rows}>, ptyCols, ptyRows }
 const sessions = new Map();
 
-function getOrCreateSession(sessionId) {
+function getOrCreateSession(sessionId, cwd) {
   if (sessions.has(sessionId)) return sessions.get(sessionId);
 
-  const cmd = user ? ['su', ['-', user, '-c', 'exec bash -l']] : [shell, ['-l']];
+  // Use su without login shell (-) to avoid "no job control" warnings.
+  // Instead, start an interactive bash that sources .bashrc normally.
+  const cmd = user
+    ? ['su', [user, '-s', '/bin/bash', '-c', 'exec bash --rcfile ~/.bashrc -i']]
+    : [shell, ['-l']];
   const term = pty.spawn(cmd[0], cmd[1], {
     name: 'xterm-256color',
     cols: DEFAULT_COLS,
     rows: DEFAULT_ROWS,
-    cwd: process.cwd(),
+    cwd: cwd || process.cwd(),
     env: { ...process.env, TERM: 'xterm-256color', ATUIN_NOBIND: '1' },
   });
 
@@ -105,11 +109,14 @@ const wss = new WebSocketServer({ server });
 
 wss.on('connection', (ws, req) => {
   const params = new URL(req.url, `http://localhost`).searchParams;
-  const sessionId = params.get('session') || 'default';
+  const tabSession = params.get('session') || 'default';
+  const slug = params.get('slug') || '';
+  const sessionId = slug ? `${tabSession}:${slug}` : tabSession;
   const cols = parseInt(params.get('cols')) || DEFAULT_COLS;
   const rows = parseInt(params.get('rows')) || DEFAULT_ROWS;
 
-  const session = getOrCreateSession(sessionId);
+  const cwd = slug ? `/workspace/${slug}` : undefined;
+  const session = getOrCreateSession(sessionId, cwd);
 
   // Replay buffered output
   for (const chunk of session.buffer) {

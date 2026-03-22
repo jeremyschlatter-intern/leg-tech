@@ -362,7 +362,7 @@
       statusText.textContent = retries > 0 ? `Reconnecting (${retries})…` : 'Connecting…';
 
       const sep = wsUrl.includes('?') ? '&' : '?';
-      const me = new WebSocket(`${wsUrl}${sep}session=${tabSessionId}&cols=${term.cols}&rows=${term.rows}`);
+      const me = new WebSocket(`${wsUrl}${sep}session=${tabSessionId}&slug=${slug}&cols=${term.cols}&rows=${term.rows}`);
       currentWs = me;
 
       me.onopen = () => {

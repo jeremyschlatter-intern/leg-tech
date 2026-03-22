@@ -137,7 +137,7 @@
       text.textContent = retries > 0 ? `Reconnecting (${retries})…` : 'Connecting…';
 
       const sep = WS_URL.includes('?') ? '&' : '?';
-      const me = new WebSocket(`${WS_URL}${sep}session=${tabSessionId}&cols=${term.cols}&rows=${term.rows}`);
+      const me = new WebSocket(`${WS_URL}${sep}session=${tabSessionId}&slug=leg-tech-editor-test-app&cols=${term.cols}&rows=${term.rows}`);
       currentWs = me;
 
       me.onopen = () => {
