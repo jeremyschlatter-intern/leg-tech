@@ -4,6 +4,7 @@
 // Multiple viewers of the same session share the view.
 
 import { createServer } from 'http';
+import { execSync } from 'child_process';
 import pty from '@lydell/node-pty';
 import { WebSocketServer } from 'ws';
 
@@ -20,18 +21,29 @@ const sessions = new Map();
 function getOrCreateSession(sessionId, cwd) {
   if (sessions.has(sessionId)) return sessions.get(sessionId);
 
-  // Use su without login shell (-) to avoid "no job control" warnings.
-  // Instead, start an interactive bash that sources .bashrc normally.
-  const cmd = user
-    ? ['su', [user, '-s', '/bin/bash', '-c', 'exec bash --rcfile ~/.bashrc -i']]
-    : [shell, ['-l']];
-  const term = pty.spawn(cmd[0], cmd[1], {
+  // Spawn bash directly. When SHELL_USER is set, look up their uid/gid
+  // and set HOME so bash reads their .bashrc. Avoids su's "no job control" warning.
+  let spawnOpts = {
     name: 'xterm-256color',
     cols: DEFAULT_COLS,
     rows: DEFAULT_ROWS,
     cwd: cwd || process.cwd(),
     env: { ...process.env, TERM: 'xterm-256color', ATUIN_NOBIND: '1' },
-  });
+  };
+  let cmd;
+  if (user) {
+    const passwd = execSync(`getent passwd ${user}`).toString().trim().split(':');
+    const uid = parseInt(passwd[2]);
+    const gid = parseInt(passwd[3]);
+    const home = passwd[5];
+    spawnOpts.uid = uid;
+    spawnOpts.gid = gid;
+    spawnOpts.env = { ...spawnOpts.env, HOME: home, USER: user, LOGNAME: user };
+    cmd = ['/bin/bash', ['--rcfile', `${home}/.bashrc`, '-i']];
+  } else {
+    cmd = [shell, ['-l']];
+  }
+  const term = pty.spawn(cmd[0], cmd[1], spawnOpts);
 
   const session = {
     term,
