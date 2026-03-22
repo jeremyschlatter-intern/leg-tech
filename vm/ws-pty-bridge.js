@@ -35,12 +35,24 @@ function getOrCreateSession(sessionId) {
     clients: new Map(),
     ptyCols: DEFAULT_COLS,
     ptyRows: DEFAULT_ROWS,
+    pendingDSR: 0,
   };
 
+  // Filter DSR cursor position responses (ESC[row;colR) from buffered output.
+  // These are responses to ESC[6n queries — harmless live, but cause artifacts on replay.
+  const DSR_RESPONSE = /\x1b\[\d+;\d+R/g;
+
   term.onData(data => {
-    session.buffer.push(data);
+    let buffered = data;
+    if (session.pendingDSR > 0) {
+      buffered = data.replace(DSR_RESPONSE, () => {
+        session.pendingDSR--;
+        return '';
+      });
+    }
+    if (buffered) session.buffer.push(buffered);
     for (const ws of session.clients.keys()) {
-      if (ws.readyState === ws.OPEN) ws.send('0' + data);
+      if (ws.readyState === ws.OPEN) ws.send('0' + data); // send unfiltered to live clients
     }
   });
 
@@ -120,6 +132,12 @@ wss.on('connection', (ws, req) => {
         return;
       }
     } catch {}
+    // Count DSR queries (ESC[6n) so we can filter responses from the buffer
+    let idx = 0;
+    while ((idx = str.indexOf('\x1b[6n', idx)) !== -1) {
+      session.pendingDSR++;
+      idx += 4;
+    }
     session.term.write(str);
   });
 
