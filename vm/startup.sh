@@ -47,9 +47,20 @@ CLAUDE_SETTINGS
 
 chown -R coder:coder "${CODER_HOME}/.claude" "${CODER_HOME}/.claude.json"
 
-# Make ANTHROPIC_API_KEY and PATH available to coder's shell
+# Make env vars and PATH available to coder's shell
 echo "export ANTHROPIC_API_KEY='${ANTHROPIC_API_KEY}'" >> "${CODER_HOME}/.bashrc"
-echo 'export PATH="$HOME/.local/bin:$PATH"' >> "${CODER_HOME}/.bashrc"
+echo 'export PATH="$HOME/.local/bin:/root/.fly/bin:$PATH"' >> "${CODER_HOME}/.bashrc"
+if [ -n "$GITHUB_TOKEN" ]; then
+  echo "export GITHUB_TOKEN='${GITHUB_TOKEN}'" >> "${CODER_HOME}/.bashrc"
+  # Configure git to use the token for HTTPS push to jeremyschlatter-intern repos
+  su coder -c "git config --global credential.helper 'store'"
+  echo "https://x-access-token:${GITHUB_TOKEN}@github.com" > "${CODER_HOME}/.git-credentials"
+  chown coder:coder "${CODER_HOME}/.git-credentials"
+  chmod 600 "${CODER_HOME}/.git-credentials"
+fi
+if [ -n "$FLY_API_TOKEN" ]; then
+  echo "export FLY_API_TOKEN='${FLY_API_TOKEN}'" >> "${CODER_HOME}/.bashrc"
+fi
 
 # Warm up Claude Code (first run does init work)
 echo "Warming up Claude Code..."

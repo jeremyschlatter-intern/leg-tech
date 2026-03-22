@@ -1,7 +1,7 @@
 FROM ubuntu:24.04
 
 RUN apt-get update && apt-get install -y \
-    curl git build-essential python3 python3-pip sudo \
+    curl git build-essential python3 python3-pip sudo tmux \
     && rm -rf /var/lib/apt/lists/*
 
 # Install Node.js 22
@@ -16,6 +16,10 @@ RUN curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg \
     > /etc/apt/sources.list.d/github-cli.list \
     && apt-get update && apt-get install -y gh \
     && rm -rf /var/lib/apt/lists/*
+
+# Install Fly CLI
+RUN curl -L https://fly.io/install.sh | sh
+ENV PATH="/root/.fly/bin:$PATH"
 
 # Create non-root user (Claude Code refuses to run as root)
 RUN useradd -m -s /bin/bash coder \
@@ -47,6 +51,8 @@ RUN cd /opt && npm install
 COPY ws-pty-bridge.js /opt/ws-pty-bridge.js
 COPY startup.sh /opt/startup.sh
 RUN chmod +x /opt/startup.sh
+COPY workspace-claude.md /workspace/CLAUDE.md
+RUN chown coder:coder /workspace/CLAUDE.md
 
 WORKDIR /workspace
 
