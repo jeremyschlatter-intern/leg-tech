@@ -10,7 +10,7 @@
 const FLY_API = 'https://api.machines.dev/v1';
 const FLY_API_TOKEN = process.env.FLY_API_TOKEN;
 const FLY_APP_NAME = process.env.FLY_APP_NAME || 'leg-tech-vms';
-const VM_IMAGE = process.env.VM_IMAGE || 'registry.fly.io/leg-tech-vms:deployment-01KM8P0KJ31G1BZQSTCM7YMYDQ';
+const VM_IMAGE = process.env.VM_IMAGE || 'registry.fly.io/leg-tech-vms:deployment-01KM9HPYBEHZRGA4A1NMPAAAQE';
 
 // Secrets to inject into each VM (read from server env)
 const VM_SECRETS = {
