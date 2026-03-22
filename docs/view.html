@@ -215,11 +215,12 @@
     <div class="terminal-panel" id="terminal-panel">
       <div class="terminal-titlebar" id="terminal-titlebar">
         <span class="terminal-titlebar-title">Claude Code</span>
+        <span id="viewers" style="font-size:0.65rem; color:#888; display:none;"></span>
         <span class="terminal-status">
           <span class="status-dot" id="status-dot"></span>
-          <span id="status-text">Connecting…</span>
+          <span id="status-text"></span>
         </span>
-        <button class="terminal-close" id="terminal-close" title="Close terminal">&times;</button>
+        <button class="terminal-close" id="terminal-close" title="Close terminal" style="padding:4px 8px; z-index:10; position:relative;">&times;</button>
       </div>
       <div id="terminal-container"></div>
     </div>
@@ -236,6 +237,9 @@
   <script type="module">
     import { init, Terminal, FitAddon } from './ghostty-web/ghostty-web.js';
     import { projects, slugFor, findBySlug } from './projects.js';
+
+    // Local mode: skip auth, connect to localhost WS bridge
+    const LOCAL_MODE = window.location.hostname === 'localhost';
 
     // Look up project from URL path
     const slug = window.location.pathname.slice(1);
@@ -260,10 +264,17 @@
       document.getElementById('link-report').style.display = 'none';
     }
 
-    // --- Auth (same origin now) ---
+    // --- Auth ---
     let currentUser = null;
 
     async function checkAuth() {
+      if (LOCAL_MODE) {
+        // Skip auth in local mode — always show edit button
+        currentUser = { name: 'Local' };
+        document.getElementById('edit-btn').classList.add('visible');
+        document.getElementById('auth-area').innerHTML = '';
+        return;
+      }
       try {
         const resp = await fetch('/api/auth/me');
         const data = await resp.json();
@@ -289,7 +300,6 @@
     }
 
     function login() {
-      // Pass current URL so OAuth redirects back here
       window.location.href = `/api/auth/login?return=${encodeURIComponent(window.location.pathname)}`;
     }
 
@@ -299,18 +309,27 @@
     }
 
     // --- Terminal ---
-    let term = null;
-    let fitAddon = null;
-    let ws = null;
-    let currentMachineId = null;
+    let term = null, fitAddon = null, currentWs = null;
     let terminalHeight = 350;
+
+    // Per-tab session ID — survives refresh, unique per tab
+    if (!sessionStorage.getItem('tabSessionId')) {
+      sessionStorage.setItem('tabSessionId', crypto.randomUUID());
+    }
+    const tabSessionId = sessionStorage.getItem('tabSessionId');
 
     const terminalPanel = document.getElementById('terminal-panel');
     const terminalContainer = document.getElementById('terminal-container');
     const statusDot = document.getElementById('status-dot');
     const statusText = document.getElementById('status-text');
 
-    async function initTerminal(wsUrl) {
+    function getWsUrl() {
+      if (LOCAL_MODE) return 'ws://localhost:8080/ws';
+      // Remote mode: get from API (singleton or on-demand VM)
+      return null; // set by edit button handler
+    }
+
+    async function openTerminal(wsUrl) {
       await init();
       term = new Terminal({
         cursorBlink: true,
@@ -330,112 +349,120 @@
       await term.open(terminalContainer);
       fitAddon.fit();
 
-      // Intercept key combos before ghostty-web to fix terminal input issues
-      document.addEventListener('keydown', (e) => {
-        if (e.key === 'Tab') {
-          e.preventDefault();
-          if (e.shiftKey && ws && ws.readyState === WebSocket.OPEN) ws.send('\x1b[Z');
-        }
-        if (e.key === 'Enter' && e.shiftKey) {
-          e.preventDefault();
-          e.stopPropagation();
-          if (ws && ws.readyState === WebSocket.OPEN) ws.send('\n');
-        }
-        if (e.metaKey && e.key !== 'Meta') {
-          e.stopPropagation();
-          if (e.key === 'v') {
-            e.preventDefault();
-            navigator.clipboard.readText().then((text) => {
-              if (text && ws && ws.readyState === WebSocket.OPEN) ws.send(text);
-            });
-          }
-        }
-      }, true);
-
+      document.addEventListener('keydown', handleKeys, true);
       window.addEventListener('resize', () => fitAddon.fit());
 
       term.onResize(size => {
-        if (ws && ws.readyState === WebSocket.OPEN) {
-          ws.send(JSON.stringify({ type: 'resize', cols: size.cols, rows: size.rows }));
-        }
+        if (currentWs?.readyState === WebSocket.OPEN)
+          currentWs.send(JSON.stringify({ type: 'resize', cols: size.cols, rows: size.rows }));
       });
-
       term.onData(data => {
-        if (ws && ws.readyState === WebSocket.OPEN) {
-          ws.send(data);
-        }
+        if (currentWs?.readyState === WebSocket.OPEN) currentWs.send(data);
       });
 
-      connectWebSocket(wsUrl);
+      connect(wsUrl);
     }
 
-    function connectWebSocket(wsUrl, retries = 0) {
+    function connect(wsUrl, retries = 0) {
       statusDot.className = 'status-dot connecting';
-      statusText.textContent = retries > 0 ? `Waiting for VM… (${retries})` : 'Connecting…';
+      statusText.textContent = retries > 0 ? `Reconnecting (${retries})…` : 'Connecting…';
 
       const sep = wsUrl.includes('?') ? '&' : '?';
-      ws = new WebSocket(`${wsUrl}${sep}cols=${term.cols}&rows=${term.rows}`);
+      const me = new WebSocket(`${wsUrl}${sep}session=${tabSessionId}&cols=${term.cols}&rows=${term.rows}`);
+      currentWs = me;
 
-      ws.onopen = () => {
+      me.onopen = () => {
+        if (me !== currentWs) { me.close(); return; }
         statusDot.className = 'status-dot connected';
         statusText.textContent = 'Connected';
-        // cd to the right project dir and pull latest
-        const repoSlug = project.repoUrl.split('/').pop();
-        ws.send(`cd /workspace/${repoSlug} && git pull --ff-only 2>/dev/null; clear\n`);
       };
-      ws.onmessage = e => term.write(e.data);
-      ws.onerror = () => {
-        statusDot.className = 'status-dot';
-        statusText.textContent = 'Error';
+      me.onmessage = e => {
+        if (me !== currentWs) { me.close(); return; }
+        const d = e.data;
+        if (d[0] === '0') {
+          term.write(d.slice(1));
+        } else if (d[0] === '1') {
+          const msg = JSON.parse(d.slice(1));
+          if (msg.type === 'clients') {
+            const el = document.getElementById('viewers');
+            if (msg.count > 1) { el.textContent = `${msg.count} viewers`; el.style.display = ''; }
+            else { el.style.display = 'none'; }
+          }
+        }
       };
-      ws.onclose = () => {
+      me.onerror = () => {
+        if (me !== currentWs) return;
+        statusDot.className = 'status-dot'; statusText.textContent = 'Error';
+      };
+      me.onclose = () => {
+        if (me !== currentWs) return;
         statusDot.className = 'status-dot';
         statusText.textContent = 'Disconnected';
-        // Retry if we haven't connected yet (VM still booting)
-        if (retries < 30) {
-          setTimeout(() => connectWebSocket(wsUrl, retries + 1), 2000);
-        }
+        if (retries < 30) setTimeout(() => connect(wsUrl, retries + 1), 2000);
       };
     }
 
     function closeTerminal() {
-      if (ws) { ws.close(); ws = null; }
-      if (term) { term.dispose(); term = null; }
+      if (currentWs) { currentWs.close(); currentWs = null; }
+      if (term) { term.dispose(); term = null; fitAddon = null; }
       terminalPanel.classList.remove('open');
       terminalPanel.style.height = '';
       if (currentUser) document.getElementById('edit-btn').classList.add('visible');
-      if (currentMachineId) {
-        fetch(`/api/machines/${currentMachineId}`, { method: 'DELETE' });
-        currentMachineId = null;
+      document.removeEventListener('keydown', handleKeys, true);
+    }
+
+    function handleKeys(e) {
+      if (e.key === 'Tab') {
+        e.preventDefault();
+        if (e.shiftKey && currentWs?.readyState === WebSocket.OPEN) currentWs.send('\x1b[Z');
+      }
+      if (e.key === 'Enter' && e.shiftKey) {
+        e.preventDefault(); e.stopPropagation();
+        if (currentWs?.readyState === WebSocket.OPEN) currentWs.send('\n');
+      }
+      if (e.metaKey && e.key !== 'Meta') {
+        e.stopPropagation();
+        if (e.key === 'v') {
+          e.preventDefault();
+          navigator.clipboard.readText().then(t => {
+            if (t && currentWs?.readyState === WebSocket.OPEN) currentWs.send(t);
+          });
+        }
       }
     }
 
-    document.getElementById('terminal-close').addEventListener('click', closeTerminal);
+    // Close button
+    document.getElementById('terminal-close').addEventListener('mousedown', e => e.stopPropagation());
+    document.getElementById('terminal-close').addEventListener('click', e => {
+      e.stopPropagation();
+      closeTerminal();
+    });
 
-    // --- Drag to resize ---
+    // Drag to resize — overlay prevents iframe from stealing mouse events
     {
-      const titlebar = document.getElementById('terminal-titlebar');
-      let dragging = false, startY, startHeight;
-      titlebar.addEventListener('mousedown', e => {
-        dragging = true;
-        startY = e.clientY;
-        startHeight = terminalPanel.offsetHeight;
-        document.body.style.cursor = 'ns-resize';
-        document.body.style.userSelect = 'none';
+      let dragging = false, startY, startH;
+      const overlay = document.createElement('div');
+      Object.assign(overlay.style, {
+        position: 'fixed', top: '0', left: '0', width: '100%', height: '100%',
+        zIndex: '9999', cursor: 'ns-resize', display: 'none',
+      });
+      document.body.appendChild(overlay);
+
+      document.getElementById('terminal-titlebar').addEventListener('mousedown', e => {
+        dragging = true; startY = e.clientY; startH = terminalPanel.offsetHeight;
+        overlay.style.display = 'block';
         e.preventDefault();
       });
       document.addEventListener('mousemove', e => {
         if (!dragging) return;
-        const newHeight = Math.max(150, Math.min(window.innerHeight - 100, startHeight + (startY - e.clientY)));
-        terminalPanel.style.height = newHeight + 'px';
-        terminalHeight = newHeight;
+        const h = Math.max(150, Math.min(window.innerHeight - 100, startH + (startY - e.clientY)));
+        terminalPanel.style.height = h + 'px'; terminalHeight = h;
         if (fitAddon) fitAddon.fit();
       });
       document.addEventListener('mouseup', () => {
         if (!dragging) return;
         dragging = false;
-        document.body.style.cursor = '';
-        document.body.style.userSelect = '';
+        overlay.style.display = 'none';
       });
     }
 
@@ -443,20 +470,21 @@
     document.getElementById('edit-btn').addEventListener('click', async () => {
       const btn = document.getElementById('edit-btn');
       btn.disabled = true;
-      btn.textContent = 'Starting VM…';
+      btn.textContent = 'Starting…';
 
       try {
-        const resp = await fetch('/api/machines', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ repoUrl: project.repoUrl, projectTitle: project.title }),
-        });
-        const machine = await resp.json();
-        if (!resp.ok) throw new Error(machine.error || 'Failed to create VM');
-
-        currentMachineId = machine.machineId;
-        btn.textContent = 'VM created, connecting terminal…';
-        await initTerminal(machine.wsUrl);
+        if (LOCAL_MODE) {
+          await openTerminal('ws://localhost:8080/ws');
+        } else {
+          const resp = await fetch('/api/machines', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ repoUrl: project.repoUrl, projectTitle: project.title }),
+          });
+          const machine = await resp.json();
+          if (!resp.ok) throw new Error(machine.error || 'Failed to create VM');
+          await openTerminal(machine.wsUrl);
+        }
       } catch (err) {
         btn.disabled = false;
         btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> Edit with Claude Code`;
