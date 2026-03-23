@@ -382,14 +382,7 @@
         if (me !== currentWs) { me.close(); return; }
         const d = e.data;
         if (d[0] === '0') {
-          let data = d.slice(1);
-          // Intercept refresh OSC escape sequence from VM
-          const refreshOsc = '\x1b]refresh\x1b\\';
-          if (data.includes(refreshOsc)) {
-            refreshIframe();
-            data = data.replaceAll(refreshOsc, '');
-          }
-          if (data) term.write(data);
+          term.write(d.slice(1));
         } else if (d[0] === '1') {
           const msg = JSON.parse(d.slice(1));
           if (msg.type === 'clients') {
