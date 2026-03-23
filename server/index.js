@@ -26,9 +26,6 @@ const projectSlugs = new Set(projects.map(slugFor));
 // Test-only project slugs (routable but not shown on index page)
 const testSlugs = new Set(projects.filter(p => p.testOnly).map(slugFor));
 
-// In-memory session store
-const sessions = new Map();
-
 // --- Helpers ---
 
 const MIME = {
@@ -48,18 +45,22 @@ function parseCookies(header) {
   return cookies;
 }
 
+// Session is encoded directly in the cookie: base64(JSON) + signature.
+// No server-side state — survives restarts and works across multiple machines.
 function getSession(req) {
   const raw = parseCookies(req.headers.cookie).session;
   if (!raw) return null;
-  const sessionId = unsign(raw, COOKIE_SECRET);
-  if (sessionId === false) return null;
-  return sessions.get(sessionId) || null;
+  const payload = unsign(raw, COOKIE_SECRET);
+  if (payload === false) return null;
+  try { return JSON.parse(Buffer.from(payload, 'base64').toString()); }
+  catch { return null; }
 }
 
-function setSessionCookie(res, sessionId) {
-  const signed = sign(sessionId, COOKIE_SECRET);
+function setSessionCookie(res, data) {
+  const payload = Buffer.from(JSON.stringify(data)).toString('base64');
+  const signed = sign(payload, COOKIE_SECRET);
   res.setHeader('Set-Cookie',
-    `session=${encodeURIComponent(signed)}; Path=/; HttpOnly; SameSite=Lax; Max-Age=86400`
+    `session=${encodeURIComponent(signed)}; Path=/; HttpOnly; SameSite=Lax; Max-Age=604800`
   );
 }
 
@@ -172,14 +173,11 @@ const server = createServer(async (req, res) => {
       return;
     }
 
-    const sessionId = crypto.randomBytes(24).toString('hex');
-    sessions.set(sessionId, {
+    setSessionCookie(res, {
       email: userInfo.email,
       name: userInfo.name,
       picture: userInfo.picture,
-      createdAt: Date.now(),
     });
-    setSessionCookie(res, sessionId);
     res.writeHead(302, { Location: returnTo });
     res.end();
     return;
@@ -198,11 +196,6 @@ const server = createServer(async (req, res) => {
   }
 
   if (path === '/api/auth/logout' && req.method === 'POST') {
-    const raw = parseCookies(req.headers.cookie).session;
-    if (raw) {
-      const sessionId = unsign(raw, COOKIE_SECRET);
-      if (sessionId !== false) sessions.delete(sessionId);
-    }
     clearSessionCookie(res);
     return json(res, 200, { ok: true });
   }
