@@ -210,7 +210,7 @@ const server = createServer(async (req, res) => {
 
     // Find the most recent started VM in the leg-tech-vms app
     {
-      const FLY_APP_NAME = process.env.FLY_APP_NAME || 'leg-tech-vms';
+      const FLY_APP_NAME = process.env.VM_APP_NAME || 'leg-tech-vms';
       const FLY_API_TOKEN = process.env.FLY_API_TOKEN;
       if (FLY_API_TOKEN) {
         try {
