@@ -213,29 +213,33 @@ const server = createServer(async (req, res) => {
       const FLY_APP_NAME = process.env.FLY_APP_NAME || 'leg-tech-vms';
       const FLY_API_TOKEN = process.env.FLY_API_TOKEN;
       if (FLY_API_TOKEN) {
-        const resp = await fetch(`https://api.machines.dev/v1/apps/${FLY_APP_NAME}/machines`, {
-          headers: { 'Authorization': `Bearer ${FLY_API_TOKEN}` },
-        });
-        if (resp.ok) {
-          const machines = await resp.json();
-          const started = machines
-            .filter(m => m.state === 'started')
-            .sort((a, b) => (b.created_at || '').localeCompare(a.created_at || ''));
-          if (started.length > 0) {
-            const vm = started[0];
-            return json(res, 201, {
-              machineId: vm.id,
-              wsUrl: `wss://${FLY_APP_NAME}.fly.dev/ws?fly_instance_id=${vm.id}`,
-              status: 'started',
-            });
+        try {
+          const resp = await fetch(`https://api.machines.dev/v1/apps/${FLY_APP_NAME}/machines`, {
+            headers: { 'Authorization': `Bearer ${FLY_API_TOKEN}` },
+          });
+          if (resp.ok) {
+            const machines = await resp.json();
+            const started = machines
+              .filter(m => m.state === 'started')
+              .sort((a, b) => (b.created_at || '').localeCompare(a.created_at || ''));
+            if (started.length > 0) {
+              const vm = started[0];
+              return json(res, 201, {
+                machineId: vm.id,
+                wsUrl: `wss://${FLY_APP_NAME}.fly.dev/ws?fly_instance_id=${vm.id}`,
+                status: 'started',
+              });
+            }
+            return json(res, 503, { error: 'No running VMs available' });
           }
+          const errText = await resp.text();
+          return json(res, 502, { error: `Fly API ${resp.status}: ${errText}` });
+        } catch (e) {
+          return json(res, 500, { error: `VM discovery failed: ${e.message}` });
         }
       }
+      return json(res, 500, { error: 'No FLY_API_TOKEN configured' });
     }
-
-    const body = await readBody(req);
-    const { repoUrl, projectTitle } = body;
-    if (!repoUrl) return json(res, 400, { error: 'repoUrl is required' });
 
     const machine = await createMachine({ repoUrl, projectTitle, user: session.email });
     return json(res, 201, machine);
