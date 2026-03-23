@@ -26,6 +26,9 @@ const projectSlugs = new Set(projects.map(slugFor));
 // Test-only project slugs (routable but not shown on index page)
 const testSlugs = new Set(projects.filter(p => p.testOnly).map(slugFor));
 
+// SSE listeners for refresh events: slug → Set<res>
+const refreshListeners = new Map();
+
 // --- Helpers ---
 
 const MIME = {
@@ -259,6 +262,38 @@ const server = createServer(async (req, res) => {
     const machineId = path.split('/').pop();
     await destroyMachine(machineId);
     return json(res, 200, { ok: true });
+  }
+
+  // --- Refresh SSE ---
+
+  // POST /api/refresh/:slug — trigger refresh for all viewers of a project
+  if (path.startsWith('/api/refresh/') && req.method === 'POST') {
+    const slug = path.split('/').pop();
+    const listeners = refreshListeners.get(slug);
+    if (listeners) {
+      for (const res of listeners) {
+        res.write(`data: refresh\n\n`);
+      }
+    }
+    return json(res, 200, { ok: true, listeners: listeners?.size || 0 });
+  }
+
+  // GET /api/refresh/:slug — SSE stream, receives refresh events
+  if (path.startsWith('/api/refresh/') && req.method === 'GET') {
+    const slug = path.split('/').pop();
+    res.writeHead(200, {
+      'Content-Type': 'text/event-stream',
+      'Cache-Control': 'no-cache',
+      'Connection': 'keep-alive',
+    });
+    res.write('\n');
+    if (!refreshListeners.has(slug)) refreshListeners.set(slug, new Set());
+    refreshListeners.get(slug).add(res);
+    req.on('close', () => {
+      refreshListeners.get(slug)?.delete(res);
+      if (refreshListeners.get(slug)?.size === 0) refreshListeners.delete(slug);
+    });
+    return;
   }
 
   // --- Health ---

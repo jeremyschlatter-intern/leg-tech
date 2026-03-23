@@ -253,6 +253,14 @@
     document.title = `Leg Tech — ${project.title}`;
     document.getElementById('viewer-title').textContent = project.title;
     document.getElementById('app-frame').src = project.siteUrl;
+
+    // Listen for refresh events (from VM-Claude deploying changes)
+    function refreshIframe() {
+      const iframe = document.getElementById('app-frame');
+      iframe.src = iframe.src; // force reload
+    }
+    const refreshSource = new EventSource(`/api/refresh/${slug}`);
+    refreshSource.onmessage = () => refreshIframe();
     document.getElementById('link-direct').href = project.siteUrl;
     if (project.repoUrl) {
       document.getElementById('link-source').href = project.repoUrl;
@@ -374,7 +382,14 @@
         if (me !== currentWs) { me.close(); return; }
         const d = e.data;
         if (d[0] === '0') {
-          term.write(d.slice(1));
+          let data = d.slice(1);
+          // Intercept refresh OSC escape sequence from VM
+          const refreshOsc = '\x1b]refresh\x1b\\';
+          if (data.includes(refreshOsc)) {
+            refreshIframe();
+            data = data.replaceAll(refreshOsc, '');
+          }
+          if (data) term.write(data);
         } else if (d[0] === '1') {
           const msg = JSON.parse(d.slice(1));
           if (msg.type === 'clients') {

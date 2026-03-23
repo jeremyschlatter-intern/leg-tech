@@ -44,8 +44,18 @@ Some projects deploy to **GitHub Pages** (static sites), others to **Fly.io**.
 
 Repos are cloned via HTTPS (read-only). To push changes, you'll need to configure git credentials. Create a branch, commit, and push.
 
+## Refreshing the Preview
+
+After making changes to the app, refresh the preview in all connected browsers by running:
+
+    refresh-preview
+
+This works from any project directory. It sends a signal that reloads the app iframe for all viewers.
+
 ## Tools Available
 
 - `claude` — Claude Code CLI (run from a project directory)
+- `refresh-preview` — Reload the app preview in all connected browsers
+- `fly` — Fly.io CLI for deploying apps
 - `gh` — GitHub CLI
 - `git`, `node`, `python3`, `pip3`

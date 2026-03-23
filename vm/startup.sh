@@ -62,6 +62,22 @@ if [ -n "$FLY_API_TOKEN" ]; then
   echo "export FLY_API_TOKEN='${FLY_API_TOKEN}'" >> "${CODER_HOME}/.bashrc"
 fi
 
+# Install refresh-preview script: sends refresh signal via both
+# escape sequence (for terminal viewers) and HTTP (for all viewers)
+mkdir -p "${CODER_HOME}/bin"
+cat > "${CODER_HOME}/bin/refresh-preview" << 'ENDSCRIPT'
+#!/bin/sh
+# Refresh via escape sequence (reaches terminal viewers immediately)
+for pts in /dev/pts/[0-9]*; do
+  printf '\033]refresh\033\\' > "$pts" 2>/dev/null
+done
+# Refresh via API (reaches all browser viewers including non-editor ones)
+curl -s -X POST "https://leg-tech.fly.dev/api/refresh/$(basename "$PWD")" >/dev/null 2>&1 &
+ENDSCRIPT
+chmod +x "${CODER_HOME}/bin/refresh-preview"
+echo 'export PATH="$HOME/bin:$PATH"' >> "${CODER_HOME}/.bashrc"
+chown -R coder:coder "${CODER_HOME}/bin"
+
 # Warm up Claude Code (first run does init work)
 echo "Warming up Claude Code..."
 su - coder -c 'cd /workspace && ANTHROPIC_API_KEY="'"${ANTHROPIC_API_KEY}"'" PATH="$HOME/.local/bin:$PATH" claude --model haiku -p "reply with ok" --no-input' 2>&1 || true
