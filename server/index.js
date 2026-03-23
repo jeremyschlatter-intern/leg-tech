@@ -284,15 +284,7 @@ const server = createServer(async (req, res) => {
   // Project slug → serve view.html
   const slug = path.slice(1); // strip leading /
   if (slug && !slug.includes('/') && projectSlugs.has(slug)) {
-    // Test-only projects are only accessible on localhost or when auth is disabled
-    if (testSlugs.has(slug) && !DISABLE_AUTH) {
-      const host = req.headers.host || '';
-      if (!host.startsWith('localhost')) {
-        res.writeHead(404);
-        res.end('Not found');
-        return;
-      }
-    }
+    // Test-only projects are not shown on the index page but are still routable
     return serveFile(res, join(DOCS_DIR, 'view.html'));
   }
 
