@@ -215,14 +215,29 @@ const server = createServer(async (req, res) => {
       if (!session) return json(res, 401, { error: 'Not authenticated' });
     }
 
-    // Singleton VM mode: use pre-started VM if SINGLETON_VM_ID is set
-    if (process.env.SINGLETON_VM_ID) {
+    // Find the most recent started VM in the leg-tech-vms app
+    {
       const FLY_APP_NAME = process.env.FLY_APP_NAME || 'leg-tech-vms';
-      return json(res, 201, {
-        machineId: process.env.SINGLETON_VM_ID,
-        wsUrl: `wss://${FLY_APP_NAME}.fly.dev/ws?fly_instance_id=${process.env.SINGLETON_VM_ID}`,
-        status: 'started',
-      });
+      const FLY_API_TOKEN = process.env.FLY_API_TOKEN;
+      if (FLY_API_TOKEN) {
+        const resp = await fetch(`https://api.machines.dev/v1/apps/${FLY_APP_NAME}/machines`, {
+          headers: { 'Authorization': `Bearer ${FLY_API_TOKEN}` },
+        });
+        if (resp.ok) {
+          const machines = await resp.json();
+          const started = machines
+            .filter(m => m.state === 'started')
+            .sort((a, b) => (b.created_at || '').localeCompare(a.created_at || ''));
+          if (started.length > 0) {
+            const vm = started[0];
+            return json(res, 201, {
+              machineId: vm.id,
+              wsUrl: `wss://${FLY_APP_NAME}.fly.dev/ws?fly_instance_id=${vm.id}`,
+              status: 'started',
+            });
+          }
+        }
+      }
     }
 
     const body = await readBody(req);
