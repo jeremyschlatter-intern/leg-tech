@@ -54,6 +54,8 @@ RUN chmod +x /opt/startup.sh
 COPY workspace-claude.md /workspace/CLAUDE.md
 RUN chown coder:coder /workspace/CLAUDE.md
 
+ENV SHELL_USER=coder
+
 WORKDIR /workspace
 
 EXPOSE 8080
