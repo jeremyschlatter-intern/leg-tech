@@ -41,7 +41,7 @@ RUN cd /workspace && \
       house-disbursements-data bills-to-committee bill-delay-tracker \
       congressional-job-tracker govtrack-newsletter-generator resolution-alerts \
       congressional-rfps house-committee-spending committee-funding-tracker \
-      appropriations-explorer cbj-approps-alignment leg-tech-editor-test-app; \
+      appropriations-explorer cbj-approps-alignment hearing-quote-finder leg-tech-editor-test-app; \
     do git clone "https://github.com/jeremyschlatter-intern/${repo}.git" "/workspace/${repo}" & done && wait \
     && chown -R coder:coder /workspace
 
