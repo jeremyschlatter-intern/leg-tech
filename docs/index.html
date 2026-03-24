@@ -645,6 +645,16 @@
         siteUrl: "https://leg-tech-cbj-approps.fly.dev/",
         reportUrl: "https://github.com/jeremyschlatter-intern/cbj-approps-alignment/blob/main/AFTER_ACTION_REPORT.md",
         repoUrl: "https://github.com/jeremyschlatter-intern/cbj-approps-alignment"
+      },
+      {
+        unlisted: true,
+        title: "Hearing Quote Finder",
+        description: "Helps congressional staffers find relevant quotes from recent hearing transcripts. Enter topics you care about, and the tool searches transcripts to surface a reverse-chronological feed of matching quotes with full hearing context.",
+        fullDescription: "<p><strong>Hearing Quote Finder</strong></p><p>This project description was written by a non-expert after a conversation with congressional staffers:</p><hr><p>Staffers review transcripts of recent hearings for topics that are of interest to them. It would be good if they had an interface that would allow them to enter in topics that they (or their member) care about. The app grabs all the transcripts of the past month(?) (via an api? from youtube?). Then an agent looks though those transcripts and pulls all the quotes that are relevant to the listed topics.</p><p>I think the default interface should be a reverse chronological feed of quotes. When you click on a quote, it opens up the relevant context from the hearing (and an AI summary?). Probably you should be able to filter the quotes by topic.</p>",
+        wikiAnchor: "hearing-quote-finder",
+        siteUrl: "https://leg-tech-hearing-quote-finder.fly.dev/",
+        reportUrl: "https://github.com/jeremyschlatter-intern/hearing-quote-finder/blob/main/after-action-report.md",
+        repoUrl: "https://github.com/jeremyschlatter-intern/hearing-quote-finder"
       }
     ];
 
@@ -683,7 +693,8 @@
 
     function renderProjects() {
       const container = document.getElementById('live-projects');
-      projects.forEach((p, i) => {
+      const listed = projects.filter(p => !p.unlisted);
+      listed.forEach((p, i) => {
         const card = document.createElement('article');
         card.className = 'project';
         card.style.animationDelay = `${i * 0.025}s`;
